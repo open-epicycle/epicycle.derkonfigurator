@@ -13,12 +13,14 @@ def main():
     :rtype : None
     """
     
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print "ERROR: Bad arguments!"
-    
-    workspace_path = sys.argv[1]
+        sys.exit(-1)
 
-    derkonfigurator = DerKonfigurator(workspace_path)
+    derkonfigurator_path = sys.argv[1]
+    workspace_path = sys.argv[2]
+
+    derkonfigurator = DerKonfigurator(derkonfigurator_path, workspace_path)
 
     derkonfigurator.run()
 
