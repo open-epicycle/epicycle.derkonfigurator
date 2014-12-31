@@ -4,7 +4,8 @@
 
 import sys
 
-from epicycle.derkonfigurator import Repository, Reporter
+from epicycle.derkonfigurator import Reporter
+from epicycle.derkonfigurator.workspace import Workspace
 
 
 def main():
@@ -18,10 +19,10 @@ def main():
     
     reporter = Reporter()
     
-    repository_path = sys.argv[1]
+    workspace_path = sys.argv[1]
     
-    repository = Repository(reporter, repository_path)
-    
-    repository.configure()
+    workspace = Workspace(workspace_path, reporter)
+
+    print workspace.path
     
 main()
