@@ -10,8 +10,8 @@ class ReporterLevel(object):
         self._reporter = reporter
 
     def __enter__(self):
-        self._reporter.ident()
+        self._reporter.indent()
 
     def __exit__(self, tipe, value, traceback):
-        self._reporter.unident()
+        self._reporter.unindent()
         return False
