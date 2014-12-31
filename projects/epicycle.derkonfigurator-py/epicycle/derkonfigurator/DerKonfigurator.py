@@ -33,3 +33,4 @@ class DerKonfigurator(object):
         reporter = Reporter()
 
         workspace = Workspace(self.workspace_path, self.environment, reporter)
+        workspace.configure()
