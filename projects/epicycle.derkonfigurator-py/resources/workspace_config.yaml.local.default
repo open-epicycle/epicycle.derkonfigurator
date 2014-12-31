@@ -1,0 +1,5 @@
+# Please configure the local Der Konfigurator workspace configuration 
+
+# An array of paths where externals will be seached
+external_repositories:
+# Example: - C:\foo\bar\
