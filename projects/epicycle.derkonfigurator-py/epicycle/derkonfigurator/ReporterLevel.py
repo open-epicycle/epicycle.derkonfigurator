@@ -14,3 +14,4 @@ class ReporterLevel(object):
 
     def __exit__(self, tipe, value, traceback):
         self._reporter.unident()
+        return False
