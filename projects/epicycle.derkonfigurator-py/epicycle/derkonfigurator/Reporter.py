@@ -17,20 +17,20 @@ class Reporter(object):
         Constructor
         """
         
-        self._identation_level = 0
+        self._indentation_level = 0
         
-    def ident(self):
+    def indent(self):
         self._identation_level += 1
         
-    def unident(self):
-        self._identation_level -= 1
+    def unindent(self):
+        self._indentation_level -= 1
         
     def sub_level(self):
         return ReporterLevel(self)
         
     def report(self, text):
         line = ""
-        line += "  " * self._identation_level
+        line += "  " * self._indentation_level
         line += "- "        
         line += text
         print line
