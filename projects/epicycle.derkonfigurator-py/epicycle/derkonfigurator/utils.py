@@ -26,12 +26,12 @@ def read_unicode_file(path):
     return data.decode(encoding='utf-8', errors='strict')
 
 
-def write_unicode_file(self, path, data):
-    self.write_binary_file(path, data.encode('utf-8'))
+def write_unicode_file(path, data):
+    write_binary_file(path, data.encode('utf-8'))
 
 
-def read_yaml(self, path):
-    data = self.read_unicode_file(path)
+def read_yaml(path):
+    data = read_unicode_file(path)
 
     if data is None:
         return data
