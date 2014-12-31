@@ -4,8 +4,7 @@
 
 import sys
 
-from epicycle.derkonfigurator import Reporter
-from epicycle.derkonfigurator.workspace import Workspace
+from epicycle.derkonfigurator import DerKonfigurator
 
 
 def main():
@@ -17,12 +16,10 @@ def main():
     if len(sys.argv) != 2:
         print "ERROR: Bad arguments!"
     
-    reporter = Reporter()
-    
     workspace_path = sys.argv[1]
-    
-    workspace = Workspace(workspace_path, reporter)
 
-    print workspace.path
-    
+    derkonfigurator = DerKonfigurator(workspace_path)
+
+    derkonfigurator.run()
+
 main()

@@ -1,7 +1,5 @@
-from Repository import Repository
-from Reporter import Reporter
+from DerKonfigurator import DerKonfigurator
 
 __ALL__ = [
-    'Repository',
-    'Reporter',
+    'DerKonfigurator',
 ]
