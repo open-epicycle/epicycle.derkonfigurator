@@ -9,8 +9,7 @@ from utils import read_binary_file, write_binary_file, read_unicode_file, write_
 
 
 class DirectoryBasedObject(object):
-    def __init__(self, reporter, path):
-        self._reporter = reporter
+    def __init__(self, path):
         self._path = path
         
     @property
