@@ -1,11 +1,8 @@
 __author__ = 'Dima Potekhin'
 
+from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 
-class Workspace(object):
-    def __init__(self, path, reporter):
-        self._path = path
-        self._reporter = reporter
 
-    @property
-    def path(self):
-        return self._path
+class Workspace(WorkspaceEntity):
+    def __init__(self, path, environment, reporter):
+        super(Workspace, self).__init__(path, environment, self, reporter)
