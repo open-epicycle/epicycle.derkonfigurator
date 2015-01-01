@@ -1,5 +1,6 @@
 __author__ = 'Dima Potekhin'
 
+import os
 import shutil
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 
@@ -19,6 +20,7 @@ class Workspace(WorkspaceEntity):
                 return
 
         self.report("Configuring workspace")
+        self._load_repositories()
 
     def _init(self):
         self._local_config = self.read_yaml(Workspace.LOCAL_CONFIG_FILE_NAME)
@@ -38,3 +40,11 @@ class Workspace(WorkspaceEntity):
             self._external_repositories_path = self._local_config['external_repositories']
 
             return True
+
+    def _load_repositories(self):
+        for directory in os.listdir(self.path):
+            full_path = os.path.join(self.path, directory)
+            self._process_potential_workspace(full_path)
+
+    def _process_potential_workspace(self, path):
+        print path
