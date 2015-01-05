@@ -44,5 +44,11 @@ def ensure_dir(path):
         os.makedirs(path)
 
 
+def listdir_full(*sub_path_parts):
+    path = os.path.join(*sub_path_parts)
+
+    return [(item, os.path.join(path, item)) for item in os.listdir(path)]
+
+
 def nget(obj, key):
     return obj[key] if obj is not None else None
