@@ -1,5 +1,6 @@
 __author__ = 'Dima Potekhin'
 
+from epicycle.derkonfigurator.utils import is_dir_with_file
 from DirectoryBasedObject import DirectoryBasedObject
 
 
@@ -28,3 +29,9 @@ class WorkspaceEntity(DirectoryBasedObject):
 
     def report_sub_level(self):
         return self._reporter.sub_level()
+
+    def listdir_dirs_with_file_full(self, file_name, *sub_path_parts):
+        return [(item, full_path)
+                for item, full_path
+                in self.listdir_full(*sub_path_parts)
+                if is_dir_with_file(full_path, file_name)]
