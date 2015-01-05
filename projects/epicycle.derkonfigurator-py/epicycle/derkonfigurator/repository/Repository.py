@@ -6,9 +6,8 @@ Contains the Repository class
 
 import os
 
-from ExternalsManager import ExternalsManager
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
-from epicycle.derkonfigurator.utils import nget
+
 
 class Repository(WorkspaceEntity):
     CONFIG_FILE_NAME = "repository_config.yaml"
@@ -25,8 +24,6 @@ class Repository(WorkspaceEntity):
 
     def configure(self):
         self.report("Configuring the repository %s" % self.name)
-
-        print self._config
 
         with self.report_sub_level():
             self.report("Finished configuring the repository!")
