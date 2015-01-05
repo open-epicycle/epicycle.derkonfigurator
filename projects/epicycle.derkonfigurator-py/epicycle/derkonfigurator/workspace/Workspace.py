@@ -25,7 +25,7 @@ class Workspace(WorkspaceEntity):
             self._configure_repositories()
 
     def _init(self):
-        self._local_config = self.read_yaml(Workspace.LOCAL_CONFIG_FILE_NAME)
+        self._local_config = self.directory.read_yaml(Workspace.LOCAL_CONFIG_FILE_NAME)
 
         if not self._local_config:
             self.report("Initializing a fresh workspace!")
@@ -42,8 +42,8 @@ class Workspace(WorkspaceEntity):
             return True
 
     def _load_repositories(self):
-        for item, full_path in self.listdir_dirs_with_file_full(Repository.CONFIG_FILE_NAME):
-            self._repositories.append(Repository(self.workspace, full_path))
+        for directory in self.directory.list_subdirs_with_file(Repository.CONFIG_FILE_NAME):
+            self._repositories.append(Repository(self.workspace, directory.path))
 
     def _configure_repositories(self):
         for repository in self._repositories:

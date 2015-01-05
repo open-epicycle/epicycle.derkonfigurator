@@ -16,7 +16,7 @@ class Repository(WorkspaceEntity):
     def __init__(self, parent, path):
         super(Repository, self).__init__(path, parent.environment, parent.workspace, parent.reporter)
         
-        self._config = self.read_yaml(Repository.CONFIG_FILE_NAME)
+        self._config = self.directory.read_yaml(Repository.CONFIG_FILE_NAME)
         self._name = os.path.split(path)[1]
 
         self._projects = []
@@ -33,8 +33,8 @@ class Repository(WorkspaceEntity):
             self._configure_projects()
 
     def _load_projects(self):
-        for item, full_path in self.listdir_dirs_with_file_full(Project.CONFIG_FILE_NAME, self.PROJECTS_DIR):
-            self._projects.append(Project(self.workspace, full_path))
+        for directory in self.directory.subdir(Repository.PROJECTS_DIR).list_subdirs_with_file(Project.CONFIG_FILE_NAME):
+            self._projects.append(Project(self.workspace, directory.path))
 
     def _configure_projects(self):
         with self.report_sub_level():
