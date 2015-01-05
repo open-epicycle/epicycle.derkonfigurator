@@ -1,4 +1,5 @@
 from DerKonfigurator import DerKonfigurator
+from Directory import Directory
 from DirectoryBasedObject import DirectoryBasedObject
 from Environment import Environment
 from Resources import Resources
@@ -16,6 +17,7 @@ from utils import \
 
 __ALL__ = [
     'DerKonfigurator',
+    'Directory',
     'DirectoryBasedObject',
     'Environment',
     'Resources',
