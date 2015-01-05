@@ -11,8 +11,10 @@ class Project(WorkspaceEntity):
     CONFIG_FILE_NAME = "project_config.yaml"
     _FULL_NAME_PARSING_RE = re.compile("^([^_]+)_(.+)$")
 
-    def __init__(self, parent, path):
-        super(Project, self).__init__(path, parent.environment, parent.workspace, parent.reporter)
+    def __init__(self, repository, path):
+        super(Project, self).__init__(path, repository.environment, repository.workspace, repository.reporter)
+
+        self._repository = repository
 
         self._config = self.directory.read_yaml(Project.CONFIG_FILE_NAME)
         self._full_name = os.path.split(path)[1]
@@ -42,6 +44,10 @@ class Project(WorkspaceEntity):
     def _create_configurator(self):
         if self.kind == 'cs':
             return ProjectConfiguratorCs(self)
+
+    @property
+    def repository(self):
+        return self._repository
 
     @property
     def full_name(self):

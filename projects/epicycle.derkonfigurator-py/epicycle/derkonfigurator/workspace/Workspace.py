@@ -43,7 +43,7 @@ class Workspace(WorkspaceEntity):
 
     def _load_repositories(self):
         for directory in self.directory.list_subdirs_with_file(Repository.CONFIG_FILE_NAME):
-            self._repositories.append(Repository(self.workspace, directory.path))
+            self._repositories.append(Repository(self, directory.path))
 
     def _configure_repositories(self):
         for repository in self._repositories:
