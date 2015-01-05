@@ -2,7 +2,6 @@ from DerKonfigurator import DerKonfigurator
 from Directory import Directory
 from DirectoryBasedObject import DirectoryBasedObject
 from Environment import Environment
-from Resources import Resources
 from WorkspaceEntity import WorkspaceEntity
 from utils import \
     read_binary_file, \
@@ -20,7 +19,6 @@ __ALL__ = [
     'Directory',
     'DirectoryBasedObject',
     'Environment',
-    'Resources',
     'WorkspaceEntity',
 
     # utils

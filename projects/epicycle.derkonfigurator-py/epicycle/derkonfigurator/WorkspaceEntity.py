@@ -28,3 +28,9 @@ class WorkspaceEntity(DirectoryBasedObject):
 
     def report_sub_level(self):
         return self._reporter.sub_level()
+
+    def write_template(self, destination_subpath, template_subpath, **params):
+        template_data = self.environment.resources.read_unicode_file(template_subpath)
+        data = template_data % params
+
+        self.directory.write_unicode_file(destination_subpath, data)
