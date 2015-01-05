@@ -8,6 +8,7 @@ import os
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.project.Project import Project
 
+
 class Repository(WorkspaceEntity):
     CONFIG_FILE_NAME = "repository_config.yaml"
     PROJECTS_DIR = "projects"
@@ -15,7 +16,7 @@ class Repository(WorkspaceEntity):
     def __init__(self, parent, path):
         super(Repository, self).__init__(path, parent.environment, parent.workspace, parent.reporter)
         
-        self._config = self.read_yaml("repository_config.yaml")
+        self._config = self.read_yaml(Repository.CONFIG_FILE_NAME)
         self._name = os.path.split(path)[1]
 
         self._projects = []

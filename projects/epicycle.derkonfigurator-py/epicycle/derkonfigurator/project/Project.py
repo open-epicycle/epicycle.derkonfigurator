@@ -10,7 +10,7 @@ class Project(WorkspaceEntity):
     def __init__(self, parent, path):
         super(Project, self).__init__(path, parent.environment, parent.workspace, parent.reporter)
 
-        self._config = self.read_yaml("repository_config.yaml")
+        self._config = self.read_yaml(Project.CONFIG_FILE_NAME)
         self._name = os.path.split(path)[1]
 
     @property
