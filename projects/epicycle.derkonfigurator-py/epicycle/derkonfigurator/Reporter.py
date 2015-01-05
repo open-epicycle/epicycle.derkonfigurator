@@ -20,7 +20,7 @@ class Reporter(object):
         self._indentation_level = 0
         
     def indent(self):
-        self._identation_level += 1
+        self._indentation_level += 1
         
     def unindent(self):
         self._indentation_level -= 1

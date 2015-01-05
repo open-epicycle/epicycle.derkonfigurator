@@ -4,7 +4,7 @@
 
 import sys
 
-from epicycle.derkonfigurator import Repository, Reporter
+from epicycle.derkonfigurator import DerKonfigurator
 
 
 def main():
@@ -13,15 +13,15 @@ def main():
     :rtype : None
     """
     
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print "ERROR: Bad arguments!"
-    
-    reporter = Reporter()
-    
-    repository_path = sys.argv[1]
-    
-    repository = Repository(reporter, repository_path)
-    
-    repository.configure()
-    
+        sys.exit(-1)
+
+    derkonfigurator_path = sys.argv[1]
+    workspace_path = sys.argv[2]
+
+    derkonfigurator = DerKonfigurator(derkonfigurator_path, workspace_path)
+
+    derkonfigurator.run()
+
 main()
