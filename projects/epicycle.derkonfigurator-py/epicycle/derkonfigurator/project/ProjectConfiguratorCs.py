@@ -20,16 +20,13 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     def _generate_assemblyinfo(self):
         self.project.report("Generating AssemblyInfo")
 
-        assemblyinfo_template = self.project.environment.resources.subdir("templates", "cs").read_unicode_file("AssemblyInfo.TEMPLATE.cs")
-
-        parameters = {
-            'guid': self.guid,
-            'version': self.project.repository.version,
-            'title': self.project.full_name,
-            'description': self.project.description,
-            'company': self.project.repository.organization,
-            'product': self.project.repository.product,
-            'copyright': self.project.repository.copyright,
-        }
-
-        self.project.directory.subdir("Properties").write_unicode_file("AssemblyInfo.cs", assemblyinfo_template % parameters)
+        self.project.write_template(
+            "Properties/AssemblyInfo.cs", "templates/cs/AssemblyInfo.TEMPLATE.cs",
+            guid=self.guid,
+            version=self.project.repository.version,
+            title=self.project.full_name,
+            description=self.project.description,
+            company=self.project.repository.organization,
+            product=self.project.repository.product,
+            copyright=self.project.repository.copyright,
+        )
