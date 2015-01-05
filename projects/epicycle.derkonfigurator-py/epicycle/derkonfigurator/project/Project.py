@@ -26,6 +26,8 @@ class Project(WorkspaceEntity):
         if config_type:
             self._type = config_type
 
+        self._description = nget(self.config, "description", "")
+
         self._pretty_label = "%s (%s/%s)" % (self.name, self.kind, self.type)
 
         self._configurator = self._create_configurator()
@@ -64,6 +66,10 @@ class Project(WorkspaceEntity):
     @property
     def type(self):
         return self._type
+
+    @property
+    def description(self):
+        return self._description
 
     @property
     def pretty_label(self):
