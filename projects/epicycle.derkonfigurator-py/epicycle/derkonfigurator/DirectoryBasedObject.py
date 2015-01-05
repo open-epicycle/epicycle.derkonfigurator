@@ -5,7 +5,7 @@ Contains the DirectoryBasedObject class
 """
 
 import os
-from utils import read_binary_file, write_binary_file, read_unicode_file, write_unicode_file, read_yaml, ensure_dir
+from utils import read_binary_file, write_binary_file, read_unicode_file, write_unicode_file, read_yaml, ensure_dir, listdir_full
 
 
 class DirectoryBasedObject(object):
@@ -36,3 +36,6 @@ class DirectoryBasedObject(object):
 
     def ensure_dir(self, *sub_path_parts):
         return ensure_dir(self.to_full_path(*sub_path_parts))
+
+    def listdir_full(self, *sub_path_parts):
+        return listdir_full(self.to_full_path(*sub_path_parts))
