@@ -20,11 +20,17 @@ class Repository(WorkspaceEntity):
         self._config = self.directory.read_yaml(Repository.CONFIG_FILE_NAME)
         self._name = os.path.split(path)[1]
 
+        self._version = nget(self._config, "version", default="")
+
         self._projects = []
 
     @property
     def name(self):
         return self._name
+
+    @property
+    def version(self):
+        return self._version
 
     def configure(self):
         self.report("Configuring the repository %s" % self.name)
