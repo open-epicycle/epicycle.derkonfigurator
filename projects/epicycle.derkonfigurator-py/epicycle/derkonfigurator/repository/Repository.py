@@ -4,53 +4,31 @@ Contains the Repository class
 @author: Dima Potekhin
 """
 
-import shutil
+import os
 
 from ExternalsManager import ExternalsManager
-from RepositoryPart import RepositoryPart
+from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
+from epicycle.derkonfigurator.utils import nget
 
+class Repository(WorkspaceEntity):
+    CONFIG_FILE_NAME = "repository_config.yaml"
 
-class Repository(RepositoryPart):
-    """
-    This class represents the whole repository that is to be configured
-    """
-
-    def __init__(self, reporter, repository_path):
-        """
-        Constructor
-        """
-        super(Repository, self).__init__(reporter, repository_path)
+    def __init__(self, parent, path):
+        super(Repository, self).__init__(path, parent.environment, parent.workspace, parent.reporter)
         
         self._config = self.read_yaml("repository_config.yaml")
-        
-    def _init(self):
-        self._local_config = self.read_yaml("repository_config.yaml.local")
-        
-        if not self._local_config:
-            self.report("Initializing fresh repository!")
-            
-            shutil.copy(self.to_absolute_path("repository_config.yaml.local.default"), self.to_absolute_path("repository_config.yaml.local"))
-            
-            self.report("Please set-up Der Konfigurator by editing repository_config.yaml.local")
-            self.report("Rerun after you finished configuring")
-            return False
-        
-        external_repositories = self._local_config['external_repositories']
-        
-        self.externals_manager = ExternalsManager(self.get_reporter(), self.to_absolute_path("externals"), external_repositories)
-        
-        return True
-        
+        self._name = os.path.split(path)[1]
+
+    @property
+    def name(self):
+        return self._name
+
     def configure(self):
-        self.report("Initializing")
+        self.report("Configuring the repository %s" % self.name)
+
+        print self._config
+
         with self.report_sub_level():
-            should_continue = self._init()
-            if not should_continue:
-                return
-        
-        self.report("Configuring the repository")
-        
-        with self.report_sub_level():
-            self.externals_manager.configure()
-            
-        self.report("Finished configuring the repository!")
+            self.report("Finished configuring the repository!")
+
+        return True
