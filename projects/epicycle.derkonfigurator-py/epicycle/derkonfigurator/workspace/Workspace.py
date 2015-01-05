@@ -16,15 +16,14 @@ class Workspace(WorkspaceEntity):
         self._repositories = []
 
     def configure(self):
-        self.report("Initializing workspace")
+        self.report("Configuring the workspace")
         with self.report_sub_level():
             should_continue = self._init()
             if not should_continue:
                 return
 
-        self.report("Configuring workspace")
-        self._load_repositories()
-        self._configure_repositories()
+            self._load_repositories()
+            self._configure_repositories()
 
     def _init(self):
         self._local_config = self.read_yaml(Workspace.LOCAL_CONFIG_FILE_NAME)
@@ -39,8 +38,6 @@ class Workspace(WorkspaceEntity):
             self.report("Rerun after you finished configuring")
             return False
         else:
-            self.report("Workspace already initialized")
-
             self._external_repositories_path = self._local_config['external_repositories']
 
             return True
@@ -50,6 +47,5 @@ class Workspace(WorkspaceEntity):
             self._repositories.append(Repository(self.workspace, full_path))
 
     def _configure_repositories(self):
-        with self.report_sub_level():
-            for repository in self._repositories:
-                repository.configure()
+        for repository in self._repositories:
+            repository.configure()
