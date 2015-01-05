@@ -21,6 +21,9 @@ class Repository(WorkspaceEntity):
         self._name = os.path.split(path)[1]
 
         self._version = nget(self._config, "version", default="")
+        self._organization = nget(self._config, "organization", default="")
+        self._product = nget(self._config, "product", default=self.name)
+        self._copyright = nget(self._config, "copyright", default="")
 
         self._projects = []
 
@@ -31,6 +34,18 @@ class Repository(WorkspaceEntity):
     @property
     def version(self):
         return self._version
+
+    @property
+    def organization(self):
+        return self._organization
+
+    @property
+    def product(self):
+        return self._product
+
+    @property
+    def copyright(self):
+        return self._copyright
 
     def configure(self):
         self.report("Configuring the repository %s" % self.name)
