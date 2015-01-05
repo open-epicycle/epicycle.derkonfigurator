@@ -1,6 +1,5 @@
 __author__ = 'Dima Potekhin'
 
-import os
 import shutil
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.repository import Repository
