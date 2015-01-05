@@ -1,4 +1,4 @@
-__author__ = 'dima'
+__author__ = 'Dima Potekhin'
 
 from Repository import Repository
 
