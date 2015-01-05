@@ -4,6 +4,7 @@ import os
 import re
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.utils import nget
+from ProjectConfiguratorCs import ProjectConfiguratorCs
 
 
 class Project(WorkspaceEntity):
@@ -25,6 +26,8 @@ class Project(WorkspaceEntity):
 
         self._pretty_label = "%s (%s/%s)" % (self.name, self.kind, self.type)
 
+        self._configurator = self._create_configurator()
+
     def _parse_full_name(self):
         name, serialized_kind = Project._FULL_NAME_PARSING_RE.match(self.full_name).groups()
 
@@ -35,6 +38,10 @@ class Project(WorkspaceEntity):
 
         if len(serialized_kind_parts) == 2 and serialized_kind_parts[1] == 'test':
             self._type = 'test'
+
+    def _create_configurator(self):
+        if self.kind == 'cs':
+            return ProjectConfiguratorCs(self)
 
     @property
     def full_name(self):
@@ -59,4 +66,5 @@ class Project(WorkspaceEntity):
     def configure(self):
         self.report("Configuring the project %s" % self.pretty_label)
 
-        # TODO
+        with self.report_sub_level():
+            self._configurator.configure()
