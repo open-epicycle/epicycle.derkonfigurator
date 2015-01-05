@@ -1,0 +1,23 @@
+__author__ = 'dima'
+
+import os
+from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
+
+
+class Project(WorkspaceEntity):
+    CONFIG_FILE_NAME = "project_config.yaml"
+
+    def __init__(self, parent, path):
+        super(Project, self).__init__(path, parent.environment, parent.workspace, parent.reporter)
+
+        self._config = self.read_yaml("repository_config.yaml")
+        self._name = os.path.split(path)[1]
+
+    @property
+    def name(self):
+        return self._name
+
+    def configure(self):
+        self.report("Configuring the project %s" % self.name)
+
+        # TODO
