@@ -11,6 +11,7 @@ from utils import \
     read_yaml, \
     ensure_dir, \
     listdir_full, \
+    is_dir_with_file, \
     nget
 
 __ALL__ = [
@@ -28,5 +29,6 @@ __ALL__ = [
     'read_yaml',
     'ensure_dir',
     'listdir_full',
-    'nget'
+    'is_dir_with_file',
+    'nget',
 ]

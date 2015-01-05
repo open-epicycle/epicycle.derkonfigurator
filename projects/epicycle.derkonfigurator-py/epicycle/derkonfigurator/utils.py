@@ -44,10 +44,12 @@ def ensure_dir(path):
         os.makedirs(path)
 
 
-def listdir_full(*sub_path_parts):
-    path = os.path.join(*sub_path_parts)
-
+def listdir_full(path):
     return [(item, os.path.join(path, item)) for item in os.listdir(path)]
+
+
+def is_dir_with_file(path, file_name):
+    return os.path.isdir(path) and os.path.isfile(os.path.join(path, file_name))
 
 
 def nget(obj, key):
