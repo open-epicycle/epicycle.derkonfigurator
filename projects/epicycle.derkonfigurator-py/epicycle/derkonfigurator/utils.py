@@ -39,6 +39,10 @@ def read_yaml(path):
     return yaml.load(data)
 
 
+def join_ipath(*parts):
+    return os.path.join(*parts).replace('\\', '/')
+
+
 def compare_paths(path1, path2):
     return _normalize_path_for_comparison(path1) == _normalize_path_for_comparison(path2)
 
