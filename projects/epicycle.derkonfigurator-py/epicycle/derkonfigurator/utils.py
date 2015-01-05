@@ -42,3 +42,7 @@ def read_yaml(path):
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def nget(obj, key):
+    return obj[key] if obj is not None else None
