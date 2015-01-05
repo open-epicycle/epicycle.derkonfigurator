@@ -11,11 +11,11 @@ from utils import read_binary_file, write_binary_file, read_unicode_file, write_
 class DirectoryBasedObject(object):
     def __init__(self, path):
         self._path = path
-        
+
     @property
     def path(self):
         return self._path
-        
+
     def to_full_path(self, *sub_path_parts):
         return os.path.join(self._path, *sub_path_parts)
 
