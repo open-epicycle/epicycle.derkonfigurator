@@ -52,6 +52,10 @@ class Project(WorkspaceEntity):
         return self._repository
 
     @property
+    def config(self):
+        return self._config
+
+    @property
     def full_name(self):
         return self._full_name
 
