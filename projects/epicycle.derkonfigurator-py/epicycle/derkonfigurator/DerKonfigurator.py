@@ -5,7 +5,6 @@ __author__ = 'Dima Potekhin'
 from epicycle.derkonfigurator.workspace import Workspace
 from Environment import Environment
 from Reporter import Reporter
-from Resources import Resources
 
 
 class DerKonfigurator(object):
@@ -13,9 +12,7 @@ class DerKonfigurator(object):
         self._derkonfigurator_path = derkonfigurator_path
         self._workspace_path = workspace_path
 
-        resources = Resources(os.path.join(derkonfigurator_path, "resources"))
-
-        self._environment = Environment(resources)
+        self._environment = Environment(os.path.join(derkonfigurator_path, "resources"))
 
     @property
     def derkonfigurator_path(self):

@@ -1,9 +1,11 @@
 __author__ = 'Dima Potekhin'
 
+from Directory import Directory
+
 
 class Environment(object):
-    def __init__(self, resources):
-        self._resources = resources
+    def __init__(self, resources_path):
+        self._resources = Directory(resources_path)
 
     @property
     def resources(self):

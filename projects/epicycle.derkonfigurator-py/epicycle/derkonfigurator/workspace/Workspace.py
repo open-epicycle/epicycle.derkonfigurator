@@ -6,7 +6,7 @@ from epicycle.derkonfigurator.repository import Repository
 
 
 class Workspace(WorkspaceEntity):
-    DEFAULT_LOCAL_CONFIG_RESOURCE_ID = "workspace_config.yaml.local.default"
+    DEFAULT_LOCAL_CONFIG_RESOURCE_NAME = "workspace_config.yaml.local.default"
     LOCAL_CONFIG_FILE_NAME = "workspace_config.yaml.local"
 
     def __init__(self, path, environment, reporter):
@@ -30,8 +30,8 @@ class Workspace(WorkspaceEntity):
         if not self._local_config:
             self.report("Initializing a fresh workspace!")
 
-            template_path = self.environment.resources.resource_path(Workspace.DEFAULT_LOCAL_CONFIG_RESOURCE_ID)
-            shutil.copy(template_path, self.to_full_path(Workspace.LOCAL_CONFIG_FILE_NAME))
+            template_path = self.environment.resources.to_full_path(Workspace.DEFAULT_LOCAL_CONFIG_RESOURCE_NAME)
+            shutil.copy(template_path, self.directory.to_full_path(Workspace.LOCAL_CONFIG_FILE_NAME))
 
             self.report("Please set-up Der Konfigurator by editing %s" % Workspace.LOCAL_CONFIG_FILE_NAME)
             self.report("Rerun after you finished configuring")
