@@ -52,5 +52,8 @@ def is_dir_with_file(path, file_name):
     return os.path.isdir(path) and os.path.isfile(os.path.join(path, file_name))
 
 
-def nget(obj, key):
-    return obj[key] if obj is not None else None
+def nget(obj, key, default=None):
+    if obj is None:
+        return default
+
+    return obj[key] if key in obj else default
