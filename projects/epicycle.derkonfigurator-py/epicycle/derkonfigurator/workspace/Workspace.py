@@ -46,19 +46,8 @@ class Workspace(WorkspaceEntity):
             return True
 
     def _load_repositories(self):
-        for directory in os.listdir(self.path):
-            full_path = os.path.join(self.path, directory)
-            self._process_potential_repository(full_path)
-
-    def _process_potential_repository(self, path):
-        if not os.path.isdir(path):
-            return
-
-        if not os.path.isfile(os.path.join(path, Repository.CONFIG_FILE_NAME)):
-            return
-
-        repository = Repository(self, path)
-        self._repositories.append(repository)
+        for item, full_path in self.listdir_dirs_with_file_full(Repository.CONFIG_FILE_NAME):
+            self._repositories.append(Repository(self.workspace, full_path))
 
     def _configure_repositories(self):
         with self.report_sub_level():
