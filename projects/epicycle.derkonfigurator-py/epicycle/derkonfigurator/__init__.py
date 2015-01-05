@@ -9,6 +9,8 @@ from utils import \
     read_unicode_file, \
     write_unicode_file, \
     read_yaml, \
+    compare_paths, \
+    has_extension, \
     ensure_dir, \
     listdir_full, \
     is_dir_with_file, \
@@ -27,6 +29,8 @@ __ALL__ = [
     'read_unicode_file',
     'write_unicode_file',
     'read_yaml',
+    'compare_paths',
+    'has_extension',
     'ensure_dir',
     'listdir_full',
     'is_dir_with_file',

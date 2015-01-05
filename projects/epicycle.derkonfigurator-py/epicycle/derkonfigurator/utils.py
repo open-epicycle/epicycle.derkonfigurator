@@ -39,6 +39,21 @@ def read_yaml(path):
     return yaml.load(data)
 
 
+def compare_paths(path1, path2):
+    return _normalize_path_for_comparison(path1) == _normalize_path_for_comparison(path2)
+
+
+def _normalize_path_for_comparison(path):
+    return path.replace('\\', '/').lower()
+
+
+def has_extension(path, extension=None):
+    if extension is None:
+        return True
+
+    return os.path.splitext(path)[1].lower() == extension.lower()
+
+
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
