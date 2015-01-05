@@ -10,5 +10,4 @@ class ProjectConfigurator(object):
         return self._project
 
     def configure(self):
-        pass
-        # TODO
+        self._configure()
