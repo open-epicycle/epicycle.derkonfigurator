@@ -1,7 +1,7 @@
 __author__ = 'Dima Potekhin'
 
 import os
-from utils import read_binary_file, write_binary_file, read_unicode_file, write_unicode_file, read_yaml, compare_paths, has_extension, ensure_dir, listdir_full
+from utils import read_binary_file, write_binary_file, read_unicode_file, write_unicode_file, read_yaml, join_ipath, compare_paths, has_extension, ensure_dir, listdir_full
 
 
 class Directory(object):
@@ -13,7 +13,7 @@ class Directory(object):
         return self._path
 
     def to_full_path(self, *subpath_parts):
-        return os.path.join(self._path, *subpath_parts)
+        return join_ipath(self._path, *subpath_parts)
 
     def subdir(self, *subpath_parts):
         return Directory(self.to_full_path(*subpath_parts))
@@ -45,7 +45,7 @@ class Directory(object):
         full_path = self.to_full_path(subpath)
 
         for item, item_full_path in listdir_full(full_path):
-            item_subpath = os.path.join(subpath, item)
+            item_subpath = join_ipath(subpath, item)
 
             if os.path.isdir(item_full_path):
                 if not self._is_path_one_of_those(item_subpath, ignore_dirs):
