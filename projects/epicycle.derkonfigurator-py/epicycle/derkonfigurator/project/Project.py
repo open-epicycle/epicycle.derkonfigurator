@@ -104,8 +104,11 @@ class Project(WorkspaceEntity):
         for reference in self.references:
             self._referenced_projects.append(self.repository.get_project(reference))
 
+    def flatten_dependencies(self):
+        self.configurator.flatten_dependencies()
+
     def configure(self):
         self.report("Configuring the project %s" % self.pretty_label)
 
         with self.report_sub_level():
-            self._configurator.configure()
+            self.configurator.configure()

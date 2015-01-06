@@ -17,6 +17,8 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._assemblyinfo_guid = nget(self.project.config, "assemblyinfo_guid")
         self._external_libs = nget(self.project.config, "external_libs", [])
 
+        self._flattened_external_libs = []
+
     @property
     def project_guid(self):
         return self._project_guid
@@ -30,8 +32,22 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         return self._external_libs
 
     @property
+    def flattened_external_libs(self):
+        return self._flattened_external_libs
+
+    @property
     def source_files(self):
         return self._source_files
+
+    def _flatten_dependencies(self):
+        transitive_external_libs = []
+        for referenced_project in self.project.referenced_projects:
+            transitive_external_libs += referenced_project.configurator.external_libs
+
+        flattened_external_libs = list(set(transitive_external_libs + self.external_libs))
+        flattened_external_libs.sort()
+
+        self._flattened_external_libs = flattened_external_libs
 
     def _configure(self):
         self._find_source_files()
@@ -100,7 +116,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         platform = "net45"
 
         dll_files = []
-        for external_lib_name in self.external_libs:
+        for external_lib_name in self.flattened_external_libs:
             external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
 
             lib_platform = self._find_best_platform(external_lib.available_platforms, platform)
