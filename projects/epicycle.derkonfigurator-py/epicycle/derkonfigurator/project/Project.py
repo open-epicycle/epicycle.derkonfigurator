@@ -37,6 +37,8 @@ class Project(WorkspaceEntity):
 
         self._configurator = self._create_configurator()
 
+        self._add_auto_references()
+
     def _parse_full_name(self):
         name, serialized_kind = Project._FULL_NAME_PARSING_RE.match(self.full_name).groups()
 
@@ -51,6 +53,19 @@ class Project(WorkspaceEntity):
     def _create_configurator(self):
         if self.kind == 'cs':
             return ProjectConfiguratorCs(self)
+
+    def _add_auto_references(self):
+        if self.type != 'test':
+            return
+
+        tested_project = None
+        for project in self.repository.projects:
+            if project.name == self.name and project.kind == self.kind:
+                tested_project = project
+                break
+
+        if tested_project:
+            self._references.append(tested_project.full_name)
 
     @property
     def repository(self):
