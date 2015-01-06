@@ -30,6 +30,7 @@ class Repository(WorkspaceEntity):
         self._copyright = nget(self._config, "copyright", default="")
         self._source_infocomment = self.directory.read_unicode_file("comment")
 
+        self._externals = ExternalsManager(self, Repository.EXTERNALS_DIR)
         self._projects = []
 
     @property
@@ -56,12 +57,20 @@ class Repository(WorkspaceEntity):
     def source_infocomment(self):
         return self._source_infocomment
 
+    @property
+    def externals(self):
+        return self._externals
+
     def configure(self):
         self.report("Configuring the repository %s" % self.name)
 
         with self.report_sub_level():
+            self._load_externals()
             self._load_projects()
             self._configure_projects()
+
+    def _load_externals(self):
+        self._externals.load()
 
     def _load_projects(self):
         self.report("Loading projects")
