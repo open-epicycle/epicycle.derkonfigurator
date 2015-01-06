@@ -1,7 +1,7 @@
 __author__ = 'Dima Potekhin'
 
 import os
-from utils import read_binary_file, write_binary_file, read_unicode_file, write_unicode_file, read_yaml, ensure_dir, listdir_full
+from utils import read_binary_file, write_binary_file, read_unicode_file, write_unicode_file, read_yaml, join_ipath, compare_paths, has_extension, ensure_dir, listdir_full
 
 
 class Directory(object):
@@ -13,7 +13,7 @@ class Directory(object):
         return self._path
 
     def to_full_path(self, *subpath_parts):
-        return os.path.join(self._path, *subpath_parts)
+        return join_ipath(self._path, *subpath_parts)
 
     def subdir(self, *subpath_parts):
         return Directory(self.to_full_path(*subpath_parts))
@@ -32,6 +32,33 @@ class Directory(object):
 
     def list_subdirs_with_file(self, file_subpath):
         return [directory for directory in self.list_subdirs() if directory.contains_file(file_subpath)]
+
+    def find_files_rec(self, extension=None, ignore_dirs=None):
+        result = []
+
+        self._find_files_rec(result, subpath="", extension=extension, ignore_dirs=ignore_dirs)
+        result.sort()
+
+        return result
+
+    def _find_files_rec(self, result, subpath, extension, ignore_dirs):
+        full_path = self.to_full_path(subpath)
+
+        for item, item_full_path in listdir_full(full_path):
+            item_subpath = join_ipath(subpath, item)
+
+            if os.path.isdir(item_full_path):
+                if not self._is_path_one_of_those(item_subpath, ignore_dirs):
+                    self._find_files_rec(result, item_subpath, extension, ignore_dirs)
+            elif os.path.isfile(item_full_path):
+                if has_extension(item, extension):
+                    result.append(item_subpath)
+
+    def _is_path_one_of_those(self, path, paths_to_check):
+        if not paths_to_check:
+            return False
+
+        return any([compare_paths(path, x) for x in paths_to_check])
 
     def contains_file(self, file_subpath):
         return os.path.isfile(self.to_full_path(file_subpath))

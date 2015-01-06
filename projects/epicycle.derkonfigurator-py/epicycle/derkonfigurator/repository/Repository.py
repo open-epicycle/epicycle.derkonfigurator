@@ -26,6 +26,7 @@ class Repository(WorkspaceEntity):
         self._organization = nget(self._config, "organization", default="")
         self._product = nget(self._config, "product", default=self.name)
         self._copyright = nget(self._config, "copyright", default="")
+        self._source_infocomment = self.directory.read_unicode_file("comment")
 
         self._projects = []
 
@@ -48,6 +49,10 @@ class Repository(WorkspaceEntity):
     @property
     def copyright(self):
         return self._copyright
+
+    @property
+    def source_infocomment(self):
+        return self._source_infocomment
 
     def configure(self):
         self.report("Configuring the repository %s" % self.name)
