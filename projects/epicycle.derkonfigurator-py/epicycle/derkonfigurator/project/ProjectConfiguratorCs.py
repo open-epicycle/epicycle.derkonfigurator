@@ -39,6 +39,9 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     def source_files(self):
         return self._source_files
 
+    def get_csproj_file(self, framework):
+        return "%s.%s.csproj" % (self.project.full_name, framework)
+
     def _flatten_dependencies(self):
         transitive_external_libs = []
         for referenced_project in self.project.referenced_projects:
@@ -53,7 +56,9 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._find_source_files()
         self._generate_assemblyinfo()
         self._generate_source_infocomments()
-        self._generate_vs_project_file()
+
+        for framework in ['net35', 'net40', 'net45']:
+            self._generate_vs_project_file(framework)
 
     def _find_source_files(self):
         self._source_files = self.project.directory.find_files_rec(extension=".cs", ignore_dirs=['obj', 'bin'])
@@ -95,52 +100,57 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         lines = split_into_lines(raw_comment)
         return "\r\n%s\r\n// " % "\r\n".join(["// " + x for x in lines])
 
-    def _generate_vs_project_file(self):
+    def _generate_vs_project_file(self, framework):
         self.project.report("Generating VS proj file")
 
-        external_dlls = self._collect_external_dlls()
+        framework_version, framework_define_constant = {
+            'net35': ("v3.5", "NET35"),
+            'net40': ("v4.0", "NET40"),
+            'net45': ("v4.5", "NET45"),
+        }[framework]
 
-        proj_file_name = "%s.csproj" % self.project.full_name
+        external_dlls = self._collect_external_dlls(framework)
 
         self.project.write_template(
-            proj_file_name, "templates/cs/vs-cs-lib.TEMPLATE.csproj",
+            self.get_csproj_file(framework), "templates/cs/vs-cs-lib.TEMPLATE.csproj",
             guid=self.project_guid,
+            framework=framework,
+            framework_version=framework_version,
+            framework_define_constant=framework_define_constant,
             assembly_name=self.project.full_name,
             root_namespace=self.project.name,
             compile_list=self._generate_csproj_compile_part(),
             external_dlls=self._generate_csproj_external_libs_part(external_dlls),
-            project_references=self._generate_csproj_project_references_part(),
+            project_references=self._generate_csproj_project_references_part(framework),
         )
 
-    def _collect_external_dlls(self):
-        platform = "net45"
-
+    def _collect_external_dlls(self, framework):
         dll_files = []
         for external_lib_name in self.flattened_external_libs:
             external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
 
-            lib_platform = self._find_best_platform(external_lib.available_platforms, platform)
+            lib_framework = self._find_best_framework(external_lib.available_frameworks, framework)
 
-            lib_platform_files = external_lib.get_libs(lib_platform)
+            lib_framework_files = external_lib.get_libs(lib_framework)
 
-            lib_platform_dll_files = [x for x in lib_platform_files if os.path.splitext(x)[1].lower() == ".dll"]
-            dll_files += lib_platform_dll_files
+            lib_framework_dll_files = [x for x in lib_framework_files if os.path.splitext(x)[1].lower() == ".dll"]
+            dll_files += lib_framework_dll_files
 
         return dll_files
 
-    def _find_best_platform(self, available_platforms, target_platform):
-        if len(available_platforms) == 1 and available_platforms[0] == "":
+    def _find_best_framework(self, available_frameworks, target_framework):
+        if len(available_frameworks) == 1 and available_frameworks[0] == "":
             return ""
 
-        all_platforms = ['net35', 'net40', 'net45']
+        all_frameworks = ['net35', 'net40', 'net45']
 
-        potential_platforms = all_platforms[:all_platforms.index(target_platform.lower()) + 1]
-        potential_platforms.reverse()
+        potential_frameworks = all_frameworks[:all_frameworks.index(target_framework.lower()) + 1]
+        potential_frameworks.reverse()
 
-        available_platforms_lower = [x.lower() for x in available_platforms]
-        for platform in potential_platforms:
-            if platform.lower() in available_platforms_lower:
-                return platform
+        available_frameworks_lower = [x.lower() for x in available_frameworks]
+        for framework in potential_frameworks:
+            if framework.lower() in available_frameworks_lower:
+                return framework
 
         return None
 
@@ -164,15 +174,17 @@ class ProjectConfiguratorCs(ProjectConfigurator):
 
         return template % params
 
-    def _generate_csproj_project_references_part(self):
-        parts = [self._generate_csproj_project_single_reference_part(x) for x in self.project.referenced_projects]
+    def _generate_csproj_project_references_part(self, framework):
+        parts = [self._generate_csproj_project_single_reference_part(x, framework) for x in self.project.referenced_projects]
         return "\r\n".join(parts)
 
-    def _generate_csproj_project_single_reference_part(self, referenced_project):
+    def _generate_csproj_project_single_reference_part(self, referenced_project, framework):
+        referenced_csproj = referenced_project.configurator.get_csproj_file(framework)
+
         params = {
             'name': referenced_project.full_name,
             'guid': referenced_project.configurator.project_guid.lower(),
-            'proj_file_path': "..\\%s\\%s.csproj" % (referenced_project.full_name, referenced_project.full_name),
+            'proj_file_path': "..\\%s\\%s" % (referenced_project.full_name, referenced_csproj),
         }
 
         template = \
