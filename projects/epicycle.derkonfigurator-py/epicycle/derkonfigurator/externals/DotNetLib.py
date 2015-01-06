@@ -17,7 +17,7 @@ class DotNetLib(DirectoryBasedObject):
 
         self._parse_package_name()
 
-        self._libs_by_platform = {}
+        self._libs_by_framework = {}
 
     def _parse_package_name(self):
         parts = self._full_name.split('.', 1)
@@ -46,11 +46,11 @@ class DotNetLib(DirectoryBasedObject):
         return self._version
 
     @property
-    def available_platforms(self):
-        return self._libs_by_platform.keys()
+    def available_frameworks(self):
+        return self._libs_by_framework.keys()
 
-    def get_libs(self, platform):
-        return self._libs_by_platform[platform.lower()]
+    def get_libs(self, framework):
+        return self._libs_by_framework[framework.lower()]
 
     def load(self):
         self.repository.report("Loading %s" % self.name)
@@ -60,15 +60,15 @@ class DotNetLib(DirectoryBasedObject):
     def _collect_libs(self):
         repository_level_subpath = join_ipath(self.repository_level_subpath, DotNetLib.LIB_DIR)
 
-        global_libs = self._collect_platform_libs(repository_level_subpath)
+        global_libs = self._collect_framework_libs(repository_level_subpath)
 
-        self._libs_by_platform[""] = global_libs
+        self._libs_by_framework[""] = global_libs
         for item, item_path in listdir_full(self.repository.directory.to_full_path(repository_level_subpath)):
             if os.path.isdir(item_path):
-                libs = self._collect_platform_libs(join_ipath(repository_level_subpath, item))
-                self._libs_by_platform[item.lower()] = global_libs + libs
+                libs = self._collect_framework_libs(join_ipath(repository_level_subpath, item))
+                self._libs_by_framework[item.lower()] = global_libs + libs
 
-    def _collect_platform_libs(self, repository_level_subpath):
+    def _collect_framework_libs(self, repository_level_subpath):
         lib_files = []
         for item, item_path in listdir_full(self.repository.directory.to_full_path(repository_level_subpath)):
             if os.path.isfile(item_path):
