@@ -61,6 +61,17 @@ class Repository(WorkspaceEntity):
     def externals(self):
         return self._externals
 
+    @property
+    def projects(self):
+        return self._projects
+
+    def get_project(self, full_name):
+        for project in self.projects:
+            if project.full_name.lower() == full_name.lower():
+                return project
+
+        return None
+
     def configure(self):
         self.report("Configuring the repository %s" % self.name)
 
