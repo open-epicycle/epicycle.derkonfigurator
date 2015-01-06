@@ -12,7 +12,12 @@ def read_binary_file(path):
         return f.read()
 
 
-def write_binary_file(path, data):
+def write_binary_file(path, data, quite=True):
+    if quite:
+        previous_data = read_binary_file(path)
+        if previous_data == data:
+            return
+
     with open(path, 'wb') as f:
         f.write(data)
 

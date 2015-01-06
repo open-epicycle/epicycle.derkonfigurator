@@ -11,15 +11,20 @@ class Project(WorkspaceEntity):
     CONFIG_FILE_NAME = "project_config.yaml"
     _FULL_NAME_PARSING_RE = re.compile("^([^_]+)_(.+)$")
 
-    def __init__(self, repository, path):
+    def __init__(self, repository, path, to_repository_relative_path):
         super(Project, self).__init__(path, repository.environment, repository.workspace, repository.reporter)
 
         self._repository = repository
+        self._to_repository_relative_path = to_repository_relative_path
 
         self._config = self.directory.read_yaml(Project.CONFIG_FILE_NAME)
         self._full_name = os.path.split(path)[1]
 
         self._type = 'lib'
+
+        self._references = nget(self._config, 'references', [])
+        self._referenced_projects = []
+
         self._parse_full_name()
 
         config_type = nget(self._config, 'type')
@@ -31,6 +36,8 @@ class Project(WorkspaceEntity):
         self._pretty_label = "%s (%s/%s)" % (self.name, self.kind, self.type)
 
         self._configurator = self._create_configurator()
+
+        self._add_auto_references()
 
     def _parse_full_name(self):
         name, serialized_kind = Project._FULL_NAME_PARSING_RE.match(self.full_name).groups()
@@ -47,9 +54,26 @@ class Project(WorkspaceEntity):
         if self.kind == 'cs':
             return ProjectConfiguratorCs(self)
 
+    def _add_auto_references(self):
+        if self.type != 'test':
+            return
+
+        tested_project = None
+        for project in self.repository.projects:
+            if project.name == self.name and project.kind == self.kind:
+                tested_project = project
+                break
+
+        if tested_project:
+            self._references.append(tested_project.full_name)
+
     @property
     def repository(self):
         return self._repository
+
+    @property
+    def to_repository_relative_path(self):
+        return self._to_repository_relative_path
 
     @property
     def config(self):
@@ -72,6 +96,14 @@ class Project(WorkspaceEntity):
         return self._type
 
     @property
+    def references(self):
+        return self._references
+
+    @property
+    def referenced_projects(self):
+        return self._referenced_projects
+
+    @property
     def description(self):
         return self._description
 
@@ -79,8 +111,19 @@ class Project(WorkspaceEntity):
     def pretty_label(self):
         return self._pretty_label
 
+    @property
+    def configurator(self):
+        return self._configurator
+
+    def resolve_dependencies(self):
+        for reference in self.references:
+            self._referenced_projects.append(self.repository.get_project(reference))
+
+    def flatten_dependencies(self):
+        self.configurator.flatten_dependencies()
+
     def configure(self):
         self.report("Configuring the project %s" % self.pretty_label)
 
         with self.report_sub_level():
-            self._configurator.configure()
+            self.configurator.configure()
