@@ -76,3 +76,21 @@ def nget(obj, key, default=None):
         return default
 
     return obj[key] if key in obj else default
+
+
+def replace_between(string, new_value, start_token, end_token):
+    parts1 = string.split(start_token, 1)
+
+    if len(parts1) == 1:
+        return string
+
+    prefix = parts1[0]
+
+    parts2 = parts1[1].split(end_token, 1)
+
+    if len(parts2) == 1:
+        return string
+
+    suffix = parts2[1]
+
+    return prefix + start_token + new_value + end_token + suffix
