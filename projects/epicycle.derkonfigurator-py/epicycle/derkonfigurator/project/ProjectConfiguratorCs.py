@@ -93,6 +93,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             root_namespace=self.project.name,
             compile_list=self._generate_csproj_compile_part(),
             external_dlls=self._generate_csproj_external_libs_part(external_dlls),
+            project_references=self._generate_csproj_project_references_part(),
         )
 
     def _collect_external_dlls(self):
@@ -140,7 +141,30 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             'path': self._to_vs_path(join_ipath(self.project.to_repository_relative_path, dll)),
         }
 
-        template = "    <Reference Include=\"%(name)s\">\r\n      <HintPath>%(path)s</HintPath>\r\n    </Reference>"
+        template = \
+            "    <Reference Include=\"%(name)s\">\r\n" +\
+            "      <HintPath>%(path)s</HintPath>\r\n" +\
+            "    </Reference>"
+
+        return template % params
+
+    def _generate_csproj_project_references_part(self):
+        parts = [self._generate_csproj_project_single_reference_part(x) for x in self.project.referenced_projects]
+        return "\r\n".join(parts)
+
+    def _generate_csproj_project_single_reference_part(self, referenced_project):
+        params = {
+            'name': referenced_project.full_name,
+            'guid': referenced_project.configurator.project_guid.lower(),
+            'proj_file_path': "..\\%s\\%s.csproj" % (referenced_project.full_name, referenced_project.full_name),
+        }
+
+        template = \
+            "    <ProjectReference Include=\"%(proj_file_path)s\">\r\n" +\
+            "      <Project>{%(guid)s}</Project>\r\n" +\
+            "      <Name>%(name)s</Name>\r\n" +\
+            "    </ProjectReference>"
+
         return template % params
 
     @staticmethod
