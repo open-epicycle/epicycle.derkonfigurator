@@ -1,6 +1,7 @@
 __author__ = 'Dima Potekhin'
 
 from DirectoryBasedObject import DirectoryBasedObject
+from epicycle.derkonfigurator.insertoid import has_insertoid, set_insertoid
 
 
 class WorkspaceEntity(DirectoryBasedObject):
@@ -34,3 +35,16 @@ class WorkspaceEntity(DirectoryBasedObject):
         data = template_data % params
 
         self.directory.write_unicode_file(destination_subpath, data)
+
+    def has_insertoid(self, file_subpath, name):
+        data = self.directory.read_unicode_file(file_subpath)
+
+        return has_insertoid(data, name)
+
+    def write_insertoid(self, file_subpath, name, value):
+        data = self.directory.read_unicode_file(file_subpath)
+
+        new_data = set_insertoid(data, name, value)
+
+        if new_data != data:
+            self.directory.write_unicode_file(file_subpath, new_data)
