@@ -7,12 +7,14 @@ Contains the Repository class
 import os
 from epicycle.derkonfigurator.utils import nget
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
+from epicycle.derkonfigurator.externals.ExternalsManager import ExternalsManager
 from epicycle.derkonfigurator.project.Project import Project
 
 
 class Repository(WorkspaceEntity):
     DEFAULT_VERSION = "0.0.0.0"
     CONFIG_FILE_NAME = "repository_config.yaml"
+    EXTERNALS_DIR = "externals"
     PROJECTS_DIR = "projects"
 
     def __init__(self, workspace, path):
@@ -62,10 +64,19 @@ class Repository(WorkspaceEntity):
             self._configure_projects()
 
     def _load_projects(self):
-        for directory in self.directory.subdir(Repository.PROJECTS_DIR).list_subdirs_with_file(Project.CONFIG_FILE_NAME):
-            self._projects.append(Project(self, directory.path))
+        self.report("Loading projects")
+
+        with self.report_sub_level():
+            for directory in self.directory.subdir(Repository.PROJECTS_DIR).list_subdirs_with_file(Project.CONFIG_FILE_NAME):
+                self._projects.append(Project(self, directory.path))
+            self.report("Loaded %d projects" % len(self._projects))
 
     def _configure_projects(self):
+        if not self._projects:
+            self.report("No projects to configure!")
+            return
+
+        self.report("Configuring projects")
         with self.report_sub_level():
             for project in self._projects:
                 project.configure()
