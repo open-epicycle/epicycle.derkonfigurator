@@ -73,11 +73,13 @@ class Repository(WorkspaceEntity):
         self._externals.load()
 
     def _load_projects(self):
+        to_repository_relative_path = "../.."
+
         self.report("Loading projects")
 
         with self.report_sub_level():
             for directory in self.directory.subdir(Repository.PROJECTS_DIR).list_subdirs_with_file(Project.CONFIG_FILE_NAME):
-                self._projects.append(Project(self, directory.path))
+                self._projects.append(Project(self, directory.path, to_repository_relative_path))
             self.report("Loaded %d projects" % len(self._projects))
 
     def _configure_projects(self):
