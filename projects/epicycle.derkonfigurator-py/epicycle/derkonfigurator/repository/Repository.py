@@ -78,6 +78,7 @@ class Repository(WorkspaceEntity):
         with self.report_sub_level():
             self._load_externals()
             self._load_projects()
+            self._resolve_project_references()
             self._configure_projects()
 
     def _load_externals(self):
@@ -92,6 +93,11 @@ class Repository(WorkspaceEntity):
             for directory in self.directory.subdir(Repository.PROJECTS_DIR).list_subdirs_with_file(Project.CONFIG_FILE_NAME):
                 self._projects.append(Project(self, directory.path, to_repository_relative_path))
             self.report("Loaded %d projects" % len(self._projects))
+
+    def _resolve_project_references(self):
+        self.report("Resolving project references")
+        for project in self._projects:
+            project.resolve_dependencies()
 
     def _configure_projects(self):
         if not self._projects:
