@@ -79,6 +79,7 @@ class Repository(WorkspaceEntity):
             self._load_externals()
             self._load_projects()
             self._resolve_project_references()
+            self._flatten_dependencies()
             self._configure_projects()
 
     def _load_externals(self):
@@ -98,6 +99,11 @@ class Repository(WorkspaceEntity):
         self.report("Resolving project references")
         for project in self._projects:
             project.resolve_dependencies()
+
+    def _flatten_dependencies(self):
+        self.report("Flattening dependencies")
+        for project in self._projects:
+            project.flatten_dependencies()
 
     def _configure_projects(self):
         if not self._projects:
