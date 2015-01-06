@@ -78,6 +78,10 @@ def nget(obj, key, default=None):
     return obj[key] if key in obj else default
 
 
+def split_into_lines(string):
+    return string.replace("\r", "").split("\n")
+
+
 def replace_between(string, new_value, start_token, end_token):
     parts1 = string.split(start_token, 1)
 

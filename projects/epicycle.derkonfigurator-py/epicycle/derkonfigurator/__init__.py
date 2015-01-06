@@ -30,5 +30,6 @@ __ALL__ = [
     'listdir_full',
     'is_dir_with_file',
     'nget',
+    'split_into_lines',
     'replace_between',
 ]
