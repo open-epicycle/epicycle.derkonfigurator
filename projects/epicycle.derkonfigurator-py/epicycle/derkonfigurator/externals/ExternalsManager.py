@@ -15,6 +15,8 @@ class ExternalsManager(DirectoryBasedObject):
         self._repository = repository
         self._repository_level_subpath = repository_level_subpath
 
+        self._dotnet_libs = {}
+
     @property
     def repository(self):
         return self._repository
@@ -22,6 +24,13 @@ class ExternalsManager(DirectoryBasedObject):
     @property
     def repository_level_subpath(self):
         return self._repository_level_subpath
+
+    @property
+    def available_dotnet_libs(self):
+        return [x.name for x in self._dotnet_libs]
+
+    def get_dotnet_lib(self, name):
+        return self._dotnet_libs[name.lower()]
 
     def load(self):
         self.repository.report("Loading externals")
@@ -44,3 +53,5 @@ class ExternalsManager(DirectoryBasedObject):
 
         lib = DotNetLib(self.repository, lib_repository_level_subpath, full_name)
         lib.load()
+
+        self._dotnet_libs[lib.name.lower()] = lib
