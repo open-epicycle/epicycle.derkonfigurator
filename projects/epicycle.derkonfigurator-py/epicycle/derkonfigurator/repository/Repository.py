@@ -8,6 +8,7 @@ import os
 from epicycle.derkonfigurator.utils import nget
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.externals.ExternalsManager import ExternalsManager
+from epicycle.derkonfigurator.packaging.NuGetPackager import NuGetPackager
 from epicycle.derkonfigurator.project.Project import Project
 
 
@@ -32,6 +33,8 @@ class Repository(WorkspaceEntity):
 
         self._externals = ExternalsManager(self, Repository.EXTERNALS_DIR)
         self._projects = []
+
+        self._nuget_packager = NuGetPackager(self)
 
     @property
     def name(self):
@@ -81,6 +84,7 @@ class Repository(WorkspaceEntity):
             self._resolve_project_references()
             self._flatten_dependencies()
             self._configure_projects()
+            self._configure_packagers()
 
     def _load_externals(self):
         self._externals.load()
@@ -114,3 +118,9 @@ class Repository(WorkspaceEntity):
         with self.report_sub_level():
             for project in self._projects:
                 project.configure()
+
+    def _configure_packagers(self):
+        self.report("Configuring packagers")
+
+        with self.report_sub_level():
+            self._nuget_packager.configure()
