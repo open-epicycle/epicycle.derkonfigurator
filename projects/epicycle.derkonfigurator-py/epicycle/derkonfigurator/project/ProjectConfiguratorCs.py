@@ -1,7 +1,8 @@
 __author__ = 'Dima Potekhin'
 
+import os
 from ProjectConfigurator import ProjectConfigurator
-from epicycle.derkonfigurator.utils import nget, split_into_lines
+from epicycle.derkonfigurator.utils import nget, split_into_lines, join_ipath
 
 
 class ProjectConfiguratorCs(ProjectConfigurator):
@@ -14,6 +15,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
 
         self._project_guid = nget(self.project.config, "project_guid")
         self._assemblyinfo_guid = nget(self.project.config, "assemblyinfo_guid")
+        self._external_libs = nget(self.project.config, "external_libs", [])
 
     @property
     def project_guid(self):
@@ -22,6 +24,10 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     @property
     def assemblyinfo_guid(self):
         return self._assemblyinfo_guid
+
+    @property
+    def external_libs(self):
+        return self._external_libs
 
     @property
     def source_files(self):
@@ -76,6 +82,8 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     def _generate_vs_project_file(self):
         self.project.report("Generating VS proj file")
 
+        external_dlls = self._collect_external_dlls()
+
         proj_file_name = "%s.csproj" % self.project.full_name
 
         self.project.write_template(
@@ -83,8 +91,58 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             guid=self.project_guid,
             assembly_name=self.project.full_name,
             root_namespace=self.project.name,
-            compile_list=self._generate_csproj_compile_part()
+            compile_list=self._generate_csproj_compile_part(),
+            external_dlls=self._generate_csproj_external_libs_part(external_dlls),
         )
 
+    def _collect_external_dlls(self):
+        platform = "net45"
+
+        dll_files = []
+        for external_lib_name in self.external_libs:
+            external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
+
+            lib_platform = self._find_best_platform(external_lib.available_platforms, platform)
+
+            lib_platform_files = external_lib.get_libs(lib_platform)
+
+            lib_platform_dll_files = [x for x in lib_platform_files if os.path.splitext(x)[1].lower() == ".dll"]
+            dll_files += lib_platform_dll_files
+
+        return dll_files
+
+    def _find_best_platform(self, available_platforms, target_platform):
+        if len(available_platforms) == 1 and available_platforms[0] == "":
+            return ""
+
+        all_platforms = ['net35', 'net40', 'net45']
+
+        potential_platforms = all_platforms[:all_platforms.index(target_platform.lower()) + 1]
+        potential_platforms.reverse()
+
+        available_platforms_lower = [x.lower() for x in available_platforms]
+        for platform in potential_platforms:
+            if platform.lower() in available_platforms_lower:
+                return platform
+
+        return None
+
     def _generate_csproj_compile_part(self):
-        return "\r\n".join(["    <Compile Include=\"%s\" />" % x.replace('/', '\\') for x in self.source_files])
+        template = "    <Compile Include=\"%s\" />"
+        return "\r\n".join([template % self._to_vs_path(x) for x in self.source_files])
+
+    def _generate_csproj_external_libs_part(self, dlls):
+        return "\r\n".join([self._generate_csproj_external_dll_part(x) for x in dlls])
+
+    def _generate_csproj_external_dll_part(self, dll):
+        params = {
+            'name': os.path.splitext(dll.split('/')[-1])[0],
+            'path': self._to_vs_path(join_ipath(self.project.to_repository_relative_path, dll)),
+        }
+
+        template = "    <Reference Include=\"%(name)s\">\r\n      <HintPath>%(path)s</HintPath>\r\n    </Reference>"
+        return template % params
+
+    @staticmethod
+    def _to_vs_path(path):
+        return path.replace('/', '\\')
