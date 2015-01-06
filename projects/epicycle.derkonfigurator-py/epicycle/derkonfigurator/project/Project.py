@@ -23,6 +23,7 @@ class Project(WorkspaceEntity):
         self._type = 'lib'
 
         self._references = nget(self._config, 'references', [])
+        self._referenced_projects = []
 
         self._parse_full_name()
 
@@ -84,12 +85,20 @@ class Project(WorkspaceEntity):
         return self._references
 
     @property
+    def referenced_projects(self):
+        return self._referenced_projects
+
+    @property
     def description(self):
         return self._description
 
     @property
     def pretty_label(self):
         return self._pretty_label
+
+    def resolve_dependencies(self):
+        for reference in self.references:
+            self._referenced_projects.append(self.repository.get_project(reference))
 
     def configure(self):
         self.report("Configuring the project %s" % self.pretty_label)
