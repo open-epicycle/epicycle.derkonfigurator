@@ -1,7 +1,7 @@
 __author__ = 'Dima Potekhin'
 
 from ProjectConfigurator import ProjectConfigurator
-from epicycle.derkonfigurator.utils import nget
+from epicycle.derkonfigurator.utils import nget, split_into_lines
 
 
 class ProjectConfiguratorCs(ProjectConfigurator):
@@ -62,5 +62,5 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         if not raw_comment:
             return ""
 
-        lines = raw_comment.split("\n")
-        return "\n%s\n// " % "\n".join(["// " + x for x in lines])
+        lines = split_into_lines(raw_comment)
+        return "\r\n%s\r\n// " % "\r\n".join(["// " + x for x in lines])
