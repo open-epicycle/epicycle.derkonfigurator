@@ -96,6 +96,10 @@ class Project(WorkspaceEntity):
     def pretty_label(self):
         return self._pretty_label
 
+    @property
+    def configurator(self):
+        return self._configurator
+
     def resolve_dependencies(self):
         for reference in self.references:
             self._referenced_projects.append(self.repository.get_project(reference))
