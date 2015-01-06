@@ -3,6 +3,7 @@ from Directory import Directory
 from DirectoryBasedObject import DirectoryBasedObject
 from Environment import Environment
 from WorkspaceEntity import WorkspaceEntity
+from insertoid import *
 from utils import *
 
 __ALL__ = [
@@ -11,6 +12,10 @@ __ALL__ = [
     'DirectoryBasedObject',
     'Environment',
     'WorkspaceEntity',
+
+    # insertoid
+    'has_insertoid',
+    'set_insertoid',
 
     # utils
     'read_binary_file',
