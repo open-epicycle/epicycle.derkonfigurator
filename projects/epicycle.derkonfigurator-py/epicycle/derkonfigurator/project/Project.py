@@ -21,6 +21,9 @@ class Project(WorkspaceEntity):
         self._full_name = os.path.split(path)[1]
 
         self._type = 'lib'
+
+        self._references = nget(self._config, 'references', [])
+
         self._parse_full_name()
 
         config_type = nget(self._config, 'type')
@@ -75,6 +78,10 @@ class Project(WorkspaceEntity):
     @property
     def type(self):
         return self._type
+
+    @property
+    def references(self):
+        return self._references
 
     @property
     def description(self):
