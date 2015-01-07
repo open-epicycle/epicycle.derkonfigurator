@@ -10,6 +10,7 @@ from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.externals.ExternalsManager import ExternalsManager
 from epicycle.derkonfigurator.packaging.NuGetPackager import NuGetPackager
 from epicycle.derkonfigurator.project.Project import Project
+from RepositoryConfiguratorCs import RepositoryConfiguratorCs
 
 
 class Repository(WorkspaceEntity):
@@ -42,11 +43,20 @@ class Repository(WorkspaceEntity):
         self._externals = ExternalsManager(self, Repository.EXTERNALS_DIR)
         self._projects = []
 
+        self._configurator = self._create_configurator()
         self._nuget_packager = NuGetPackager(self)
+
+    def _create_configurator(self):
+        # Currently assuming a .NET configurator
+        return RepositoryConfiguratorCs(self)
 
     @property
     def config(self):
         return self._config
+
+    @property
+    def configurator(self):
+        return self._configurator
 
     @property
     def name(self):
@@ -124,6 +134,7 @@ class Repository(WorkspaceEntity):
             self._resolve_project_references()
             self._flatten_dependencies()
             self._configure_projects()
+            self.configurator.configure()
             self._configure_packagers()
 
     def _load_externals(self):
