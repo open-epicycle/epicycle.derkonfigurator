@@ -47,6 +47,10 @@ class ProjectConfiguratorCs(ProjectConfigurator):
 
         return ["%s.%s" % (bin_name, ext) for ext in ['dll', 'pdb', 'xml']]
 
+    @property
+    def main_file(self):
+        return "%s.dll" % self.project.full_name
+
     def get_csproj_file(self, framework):
         return "%s.%s.csproj" % (self.project.full_name, framework)
 
