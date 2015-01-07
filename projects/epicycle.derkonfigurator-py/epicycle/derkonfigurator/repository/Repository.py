@@ -10,6 +10,7 @@ from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.externals.ExternalsManager import ExternalsManager
 from epicycle.derkonfigurator.packaging.NuGetPackager import NuGetPackager
 from epicycle.derkonfigurator.project.Project import Project
+from RepositoryConfiguratorCs import RepositoryConfiguratorCs
 
 
 class Repository(WorkspaceEntity):
@@ -22,12 +23,14 @@ class Repository(WorkspaceEntity):
         super(Repository, self).__init__(path, workspace.environment, workspace, workspace.reporter)
         
         self._config = self.directory.read_yaml(Repository.CONFIG_FILE_NAME)
-        self._name = os.path.split(path)[1]
+        self._full_name = os.path.split(path)[1]
+
+        self._parse_full_name()
 
         version_data = self.directory.read_unicode_file("version")
         self._version = version_data.strip() if version_data else Repository.DEFAULT_VERSION
         self._organization = nget(self._config, "organization", default="")
-        self._product = nget(self._config, "product", default=self.name)
+        self._product = nget(self._config, "product", default=self.full_name)
         self._copyright = nget(self._config, "copyright", default="")
         self._title = nget(self._config, "title", default="")
         self._license_url = nget(self._config, "license_url", default="")
@@ -42,15 +45,38 @@ class Repository(WorkspaceEntity):
         self._externals = ExternalsManager(self, Repository.EXTERNALS_DIR)
         self._projects = []
 
+        self._configurator = self._create_configurator()
         self._nuget_packager = NuGetPackager(self)
+
+    def _parse_full_name(self):
+        parts = self.full_name.split("-", 1)
+
+        self._name = parts[0]
+        self._kind = parts[0].lower()
+
+    def _create_configurator(self):
+        # Currently assuming a .NET configurator
+        return RepositoryConfiguratorCs(self)
 
     @property
     def config(self):
         return self._config
 
     @property
+    def configurator(self):
+        return self._configurator
+
+    @property
+    def full_name(self):
+        return self._full_name
+
+    @property
     def name(self):
         return self._name
+
+    @property
+    def kind(self):
+        return self._kind
 
     @property
     def version(self):
@@ -116,7 +142,7 @@ class Repository(WorkspaceEntity):
         return None
 
     def configure(self):
-        self.report("Configuring the repository %s" % self.name)
+        self.report("Configuring the repository %s" % self.full_name)
 
         with self.report_sub_level():
             self._load_externals()
@@ -124,6 +150,7 @@ class Repository(WorkspaceEntity):
             self._resolve_project_references()
             self._flatten_dependencies()
             self._configure_projects()
+            self.configurator.configure()
             self._configure_packagers()
 
     def _load_externals(self):

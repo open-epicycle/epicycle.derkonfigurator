@@ -7,7 +7,7 @@ class NuGetPackager(object):
     def __init__(self, repository):
         self._repository = repository
 
-        self._package_name = "%s.%s" % (self.repository.name, self.repository.version)
+        self._package_name = "%s.%s" % (self.repository.full_name, self.repository.version)
         self._dependencies = nget(self.repository.config, "nuget_dependencies", [])
 
     @property
@@ -38,7 +38,7 @@ class NuGetPackager(object):
     def _generate_nuspec(self):
         self.repository.write_template(
             "package.nuspec", "templates/packaging/nuget/package.TEMPLATE.nuspec",
-            id=xml_escape(self.repository.name),
+            id=xml_escape(self.repository.full_name),
             version=xml_escape(self.repository.version),
             title=xml_escape(self.repository.title),
             authors=xml_escape(self.repository.organization),
@@ -70,7 +70,7 @@ class NuGetPackager(object):
         )
 
     def _generate_copy_bin_commands(self, bin_files):
-        frameworks = ['net35', 'net40', 'net45']
+        frameworks = self.repository.configurator.supported_frameworks
 
         return "\r\n".join([self._generate_copy_bin_commands_for_framework(bin_files, x) for x in frameworks])
 

@@ -47,6 +47,10 @@ class ProjectConfiguratorCs(ProjectConfigurator):
 
         return ["%s.%s" % (bin_name, ext) for ext in ['dll', 'pdb', 'xml']]
 
+    @property
+    def main_file(self):
+        return "%s.dll" % self.project.full_name
+
     def get_csproj_file(self, framework):
         return "%s.%s.csproj" % (self.project.full_name, framework)
 
@@ -65,7 +69,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._generate_assemblyinfo()
         self._generate_source_infocomments()
 
-        for framework in ['net35', 'net40', 'net45']:
+        for framework in self.project.repository.configurator.supported_frameworks:
             self._generate_vs_project_file(framework)
 
     def _find_source_files(self):
