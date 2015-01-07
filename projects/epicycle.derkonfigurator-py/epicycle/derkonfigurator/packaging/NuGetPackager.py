@@ -46,6 +46,7 @@ class NuGetPackager(object):
             license_url=self.repository.license_url,
             project_url=self.repository.url,
             description=self.repository.description,
+            summary=self.repository.summary,
             release_notes=self.repository.release_notes,
             copyright=self.repository.copyright,
             tags=self.repository.tags,

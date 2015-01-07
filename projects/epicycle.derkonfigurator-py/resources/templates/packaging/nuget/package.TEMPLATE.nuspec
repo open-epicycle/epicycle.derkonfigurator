@@ -10,6 +10,7 @@
     <projectUrl>%(project_url)s</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>%(description)s</description>
+    <summary>%(summary)s</summary>
     <releaseNotes>%(release_notes)s</releaseNotes>
     <copyright>%(copyright)s</copyright>
     <language />
