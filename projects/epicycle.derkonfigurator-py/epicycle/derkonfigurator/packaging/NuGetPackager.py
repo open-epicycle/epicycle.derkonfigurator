@@ -70,7 +70,7 @@ class NuGetPackager(object):
         )
 
     def _generate_copy_bin_commands(self, bin_files):
-        frameworks = ['net35', 'net40', 'net45']
+        frameworks = self.repository.configurator.supported_frameworks
 
         return "\r\n".join([self._generate_copy_bin_commands_for_framework(bin_files, x) for x in frameworks])
 
