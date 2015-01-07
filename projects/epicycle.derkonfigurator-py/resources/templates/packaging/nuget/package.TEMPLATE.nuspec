@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>%(id)s</id>
+    <version>%(version)s</version>
+    <title>%(title)s</title>
+    <authors>%(authors)s</authors>
+    <owners>%(authors)s</owners>
+    <licenseUrl>%(license_url)s</licenseUrl>
+    <projectUrl>%(project_url)s</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>%(description)s</description>
+    <releaseNotes>%(release_notes)s</releaseNotes>
+    <copyright>%(copyright)s</copyright>
+    <language />
+    <tags>%(tags)s</tags>
+
+    <dependencies>
+%(dependencies)s
+    </dependencies>
+  </metadata>
+</package>
