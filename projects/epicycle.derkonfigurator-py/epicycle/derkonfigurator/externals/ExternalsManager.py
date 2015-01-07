@@ -9,6 +9,7 @@ from DotNetSystemLib import DotNetSystemLib
 
 class ExternalsManager(DirectoryBasedObject):
     NUGET_DIR = "NuGet"
+    DOT_NET_LIB_DIR = "lib_dotnet"
 
     def __init__(self, repository, repository_level_subpath):
         super(ExternalsManager, self).__init__(repository.directory.to_full_path(repository_level_subpath))
@@ -39,20 +40,21 @@ class ExternalsManager(DirectoryBasedObject):
         self._add_system_libs()
 
         with self.repository.report_sub_level():
-            self._load_nuget(ExternalsManager.NUGET_DIR)
+            self._load_libs(ExternalsManager.DOT_NET_LIB_DIR)
+            self._load_libs(ExternalsManager.NUGET_DIR)
 
     def _add_system_libs(self):
         self._add_lib(DotNetSystemLib("System.Numerics"))
 
-    def _load_nuget(self, externals_level_subpath):
-        self.repository.report("Loading NuGet packages")
+    def _load_libs(self, externals_level_subpath):
+        directory = self.directory.subdir(externals_level_subpath)
 
-        with self.repository.report_sub_level():
-            directory = self.directory.subdir(externals_level_subpath)
+        if not os.path.isdir(directory.path):
+            return
 
-            for item, item_path in listdir_full(directory.path):
-                if os.path.isdir(item_path):
-                    self._load_potential_dotnet_lib(item, join_ipath(externals_level_subpath, item))
+        for item, item_path in listdir_full(directory.path):
+            if os.path.isdir(item_path):
+                self._load_potential_dotnet_lib(item, join_ipath(externals_level_subpath, item))
 
     def _load_potential_dotnet_lib(self, full_name, externals_level_subpath):
         lib_repository_level_subpath = join_ipath(self.repository_level_subpath, externals_level_subpath)
