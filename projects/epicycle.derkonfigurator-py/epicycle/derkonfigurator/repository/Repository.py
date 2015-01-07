@@ -25,6 +25,8 @@ class Repository(WorkspaceEntity):
         self._config = self.directory.read_yaml(Repository.CONFIG_FILE_NAME)
         self._full_name = os.path.split(path)[1]
 
+        self._parse_full_name()
+
         version_data = self.directory.read_unicode_file("version")
         self._version = version_data.strip() if version_data else Repository.DEFAULT_VERSION
         self._organization = nget(self._config, "organization", default="")
@@ -46,6 +48,12 @@ class Repository(WorkspaceEntity):
         self._configurator = self._create_configurator()
         self._nuget_packager = NuGetPackager(self)
 
+    def _parse_full_name(self):
+        parts = self.full_name.split("-", 1)
+
+        self._name = parts[0]
+        self._kind = parts[0].lower()
+
     def _create_configurator(self):
         # Currently assuming a .NET configurator
         return RepositoryConfiguratorCs(self)
@@ -61,6 +69,14 @@ class Repository(WorkspaceEntity):
     @property
     def full_name(self):
         return self._full_name
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def kind(self):
+        return self._kind
 
     @property
     def version(self):
