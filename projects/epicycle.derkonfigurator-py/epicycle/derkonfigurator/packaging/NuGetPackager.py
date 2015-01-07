@@ -1,11 +1,14 @@
 __author__ = 'Dima Potekhin'
 
+from epicycle.derkonfigurator.utils import nget
+
 
 class NuGetPackager(object):
     def __init__(self, repository):
         self._repository = repository
 
         self._package_name = "%s.%s" % (self.repository.name, self.repository.version)
+        self._dependencies = nget(self.repository.config, "nuget_dependencies", [])
 
     @property
     def repository(self):
@@ -14,6 +17,10 @@ class NuGetPackager(object):
     @property
     def package_name(self):
         return self._package_name
+
+    @property
+    def dependencies(self):
+        return self._dependencies
 
     def configure(self):
         relevant_projects = [x for x in self.repository.projects if self._is_relevant(x)]
@@ -25,7 +32,34 @@ class NuGetPackager(object):
 
         bin_files = self._collect_bin_files(relevant_projects)
 
+        self._generate_nuspec()
         self._generate_create_nuget_package_cmd(bin_files)
+
+    def _generate_nuspec(self):
+        self.repository.write_template(
+            "package.nuspec", "templates/packaging/nuget/package.TEMPLATE.nuspec",
+            id=self.repository.name,
+            version=self.repository.version,
+            title=self.repository.title,
+            authors=self.repository.organization,
+            owners=self.repository.organization,
+            license_url=self.repository.license_url,
+            project_url=self.repository.url,
+            description=self.repository.description,
+            release_notes=self.repository.release_notes,
+            copyright=self.repository.copyright,
+            tags=self.repository.tags,
+            dependencies=self._generate_nuspec_dependencies(),
+        )
+
+    def _generate_nuspec_dependencies(self):
+        template = "      <dependency id=\"%s\" version=\"%s\" />"
+
+        return "\r\n".join([template % self._parse_dependency(x) for x in self.dependencies])
+
+    @staticmethod
+    def _parse_dependency(dependency):
+        return tuple(dependency.split('.', 1))
 
     def _generate_create_nuget_package_cmd(self, bin_files):
         self.repository.write_template(
