@@ -33,6 +33,7 @@ class Repository(WorkspaceEntity):
         self._license_url = nget(self._config, "license_url", default="")
         self._url = nget(self._config, "url", default="")
         self._description = nget(self._config, "description", default="")
+        self._summary = nget(self._config, "summary", default="")
         self._release_notes = nget(self._config, "release_notes", default="")
         self._tags = nget(self._config, "tags", default="")
 
@@ -82,6 +83,10 @@ class Repository(WorkspaceEntity):
     @property
     def description(self):
         return self._description
+
+    @property
+    def summary(self):
+        return self._summary
 
     @property
     def release_notes(self):
