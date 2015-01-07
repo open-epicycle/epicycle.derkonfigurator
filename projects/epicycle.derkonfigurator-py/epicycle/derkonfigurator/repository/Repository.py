@@ -25,7 +25,7 @@ class Repository(WorkspaceEntity):
         self._name = os.path.split(path)[1]
 
         version_data = self.directory.read_unicode_file("version")
-        self._version = version_data.strip() if version_data.strip() else Repository.DEFAULT_VERSION
+        self._version = version_data.strip() if version_data else Repository.DEFAULT_VERSION
         self._organization = nget(self._config, "organization", default="")
         self._product = nget(self._config, "product", default=self.name)
         self._copyright = nget(self._config, "copyright", default="")
