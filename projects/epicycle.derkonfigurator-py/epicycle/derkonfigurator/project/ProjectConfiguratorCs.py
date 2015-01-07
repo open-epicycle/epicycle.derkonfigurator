@@ -2,6 +2,8 @@ __author__ = 'Dima Potekhin'
 
 import os
 from ProjectConfigurator import ProjectConfigurator
+from epicycle.derkonfigurator.externals.DotNetLib import DotNetLib
+from epicycle.derkonfigurator.externals.DotNetSystemLib import DotNetSystemLib
 from epicycle.derkonfigurator.utils import nget, split_into_lines, join_ipath
 
 
@@ -115,6 +117,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             'net45': ("v4.5", "NET45"),
         }[framework]
 
+        system_libs = self._collect_system_libs()
         external_dlls = self._collect_external_dlls(framework)
 
         self.project.write_template(
@@ -126,14 +129,28 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             assembly_name=self.project.full_name,
             root_namespace=self.project.name,
             compile_list=self._generate_csproj_compile_part(),
+            system_libs=self._generate_csproj_system_libs_parts(system_libs),
             external_dlls=self._generate_csproj_external_libs_part(external_dlls),
             project_references=self._generate_csproj_project_references_part(framework),
         )
+
+    def _collect_system_libs(self):
+        system_libs = []
+        for external_lib_name in self.flattened_external_libs:
+            external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
+
+            if isinstance(external_lib, DotNetSystemLib):
+                system_libs.append(external_lib)
+
+        return system_libs
 
     def _collect_external_dlls(self, framework):
         dll_files = []
         for external_lib_name in self.flattened_external_libs:
             external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
+
+            if not isinstance(external_lib, DotNetLib):
+                continue
 
             lib_framework = self._find_best_framework(external_lib.available_frameworks, framework)
 
@@ -163,6 +180,10 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     def _generate_csproj_compile_part(self):
         template = "    <Compile Include=\"%s\" />"
         return "\r\n".join([template % self._to_vs_path(x) for x in self.source_files])
+
+    def _generate_csproj_system_libs_parts(self, system_libs):
+        template = "    <Reference Include=\"%s\" />"
+        return "\r\n".join([(template % x.name) for x in system_libs])
 
     def _generate_csproj_external_libs_part(self, dlls):
         return "\r\n".join([self._generate_csproj_external_dll_part(x) for x in dlls])

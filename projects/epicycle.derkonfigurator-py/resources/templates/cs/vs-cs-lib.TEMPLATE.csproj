@@ -43,6 +43,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+%(system_libs)s
 %(external_dlls)s
   </ItemGroup>
   <ItemGroup>
