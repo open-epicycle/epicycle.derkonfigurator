@@ -44,7 +44,13 @@ class ExternalsManager(DirectoryBasedObject):
             self._load_libs(ExternalsManager.NUGET_DIR)
 
     def _add_system_libs(self):
-        self._add_lib(DotNetSystemLib("System.Numerics"))
+        system_lib_names = [
+            "System.Numerics",
+            "System.Drawing",
+        ]
+
+        for system_lib_name in system_lib_names:
+            self._add_lib(DotNetSystemLib(system_lib_name))
 
     def _load_libs(self, externals_level_subpath):
         directory = self.directory.subdir(externals_level_subpath)
