@@ -4,6 +4,7 @@ import os
 from epicycle.derkonfigurator.DirectoryBasedObject import DirectoryBasedObject
 from epicycle.derkonfigurator.utils import listdir_full, join_ipath
 from DotNetLib import DotNetLib
+from DotNetSystemLib import DotNetSystemLib
 
 
 class ExternalsManager(DirectoryBasedObject):
@@ -35,8 +36,13 @@ class ExternalsManager(DirectoryBasedObject):
     def load(self):
         self.repository.report("Loading externals")
 
+        self._add_system_libs()
+
         with self.repository.report_sub_level():
             self._load_nuget(ExternalsManager.NUGET_DIR)
+
+    def _add_system_libs(self):
+        self._add_lib(DotNetSystemLib("System.Numerics"))
 
     def _load_nuget(self, externals_level_subpath):
         self.repository.report("Loading NuGet packages")
@@ -54,4 +60,7 @@ class ExternalsManager(DirectoryBasedObject):
         lib = DotNetLib(self.repository, lib_repository_level_subpath, full_name)
         lib.load()
 
+        self._add_lib(lib)
+
+    def _add_lib(self, lib):
         self._dotnet_libs[lib.name.lower()] = lib
