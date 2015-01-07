@@ -65,7 +65,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._generate_assemblyinfo()
         self._generate_source_infocomments()
 
-        for framework in ['net35', 'net40', 'net45']:
+        for framework in self.project.repository.configurator.supported_frameworks:
             self._generate_vs_project_file(framework)
 
     def _find_source_files(self):
