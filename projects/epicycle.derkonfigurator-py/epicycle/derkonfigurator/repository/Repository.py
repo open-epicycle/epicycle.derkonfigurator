@@ -8,6 +8,7 @@ import os
 from epicycle.derkonfigurator.utils import nget
 from epicycle.derkonfigurator.WorkspaceEntity import WorkspaceEntity
 from epicycle.derkonfigurator.externals.ExternalsManager import ExternalsManager
+from epicycle.derkonfigurator.packaging.NuGetPackager import NuGetPackager
 from epicycle.derkonfigurator.project.Project import Project
 
 
@@ -28,10 +29,23 @@ class Repository(WorkspaceEntity):
         self._organization = nget(self._config, "organization", default="")
         self._product = nget(self._config, "product", default=self.name)
         self._copyright = nget(self._config, "copyright", default="")
+        self._title = nget(self._config, "title", default="")
+        self._license_url = nget(self._config, "license_url", default="")
+        self._url = nget(self._config, "url", default="")
+        self._description = nget(self._config, "description", default="")
+        self._release_notes = nget(self._config, "release_notes", default="")
+        self._tags = nget(self._config, "tags", default="")
+
         self._source_infocomment = self.directory.read_unicode_file("comment")
 
         self._externals = ExternalsManager(self, Repository.EXTERNALS_DIR)
         self._projects = []
+
+        self._nuget_packager = NuGetPackager(self)
+
+    @property
+    def config(self):
+        return self._config
 
     @property
     def name(self):
@@ -52,6 +66,30 @@ class Repository(WorkspaceEntity):
     @property
     def copyright(self):
         return self._copyright
+
+    @property
+    def title(self):
+        return self._title
+
+    @property
+    def license_url(self):
+        return self._license_url
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def release_notes(self):
+        return self._release_notes
+
+    @property
+    def tags(self):
+        return self._tags
 
     @property
     def source_infocomment(self):
@@ -81,6 +119,7 @@ class Repository(WorkspaceEntity):
             self._resolve_project_references()
             self._flatten_dependencies()
             self._configure_projects()
+            self._configure_packagers()
 
     def _load_externals(self):
         self._externals.load()
@@ -114,3 +153,9 @@ class Repository(WorkspaceEntity):
         with self.report_sub_level():
             for project in self._projects:
                 project.configure()
+
+    def _configure_packagers(self):
+        self.report("Configuring packagers")
+
+        with self.report_sub_level():
+            self._nuget_packager.configure()

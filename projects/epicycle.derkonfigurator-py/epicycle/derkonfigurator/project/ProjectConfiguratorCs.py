@@ -39,6 +39,12 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     def source_files(self):
         return self._source_files
 
+    @property
+    def bin_files(self):
+        bin_name = self.project.full_name
+
+        return ["%s.%s" % (bin_name, ext) for ext in ['dll', 'pdb', 'xml']]
+
     def get_csproj_file(self, framework):
         return "%s.%s.csproj" % (self.project.full_name, framework)
 
