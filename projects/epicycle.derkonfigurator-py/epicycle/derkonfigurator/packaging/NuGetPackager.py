@@ -1,6 +1,6 @@
 __author__ = 'Dima Potekhin'
 
-from epicycle.derkonfigurator.utils import nget
+from epicycle.derkonfigurator.utils import nget, xml_escape
 
 
 class NuGetPackager(object):
@@ -38,18 +38,18 @@ class NuGetPackager(object):
     def _generate_nuspec(self):
         self.repository.write_template(
             "package.nuspec", "templates/packaging/nuget/package.TEMPLATE.nuspec",
-            id=self.repository.name,
-            version=self.repository.version,
-            title=self.repository.title,
-            authors=self.repository.organization,
-            owners=self.repository.organization,
-            license_url=self.repository.license_url,
-            project_url=self.repository.url,
-            description=self.repository.description,
-            summary=self.repository.summary,
-            release_notes=self.repository.release_notes,
-            copyright=self.repository.copyright,
-            tags=self.repository.tags,
+            id=xml_escape(self.repository.name),
+            version=xml_escape(self.repository.version),
+            title=xml_escape(self.repository.title),
+            authors=xml_escape(self.repository.organization),
+            owners=xml_escape(self.repository.organization),
+            license_url=xml_escape(self.repository.license_url),
+            project_url=xml_escape(self.repository.url),
+            description=xml_escape(self.repository.description),
+            summary=xml_escape(self.repository.summary),
+            release_notes=xml_escape(self.repository.release_notes),
+            copyright=xml_escape(self.repository.copyright),
+            tags=xml_escape(self.repository.tags),
             dependencies=self._generate_nuspec_dependencies(),
         )
 
