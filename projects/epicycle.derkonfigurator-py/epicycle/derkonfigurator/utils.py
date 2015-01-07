@@ -103,3 +103,7 @@ def replace_between(string, new_value, start_token, end_token):
     suffix = parts2[1]
 
     return prefix + start_token + new_value + end_token + suffix
+
+
+def xml_escape(string):
+    return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")

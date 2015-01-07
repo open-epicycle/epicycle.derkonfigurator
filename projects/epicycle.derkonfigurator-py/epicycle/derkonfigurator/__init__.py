@@ -32,4 +32,5 @@ __ALL__ = [
     'nget',
     'split_into_lines',
     'replace_between',
+    'xml_escape',
 ]
