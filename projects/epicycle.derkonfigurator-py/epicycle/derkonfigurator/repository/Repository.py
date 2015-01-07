@@ -23,12 +23,12 @@ class Repository(WorkspaceEntity):
         super(Repository, self).__init__(path, workspace.environment, workspace, workspace.reporter)
         
         self._config = self.directory.read_yaml(Repository.CONFIG_FILE_NAME)
-        self._name = os.path.split(path)[1]
+        self._full_name = os.path.split(path)[1]
 
         version_data = self.directory.read_unicode_file("version")
         self._version = version_data.strip() if version_data else Repository.DEFAULT_VERSION
         self._organization = nget(self._config, "organization", default="")
-        self._product = nget(self._config, "product", default=self.name)
+        self._product = nget(self._config, "product", default=self.full_name)
         self._copyright = nget(self._config, "copyright", default="")
         self._title = nget(self._config, "title", default="")
         self._license_url = nget(self._config, "license_url", default="")
@@ -59,8 +59,8 @@ class Repository(WorkspaceEntity):
         return self._configurator
 
     @property
-    def name(self):
-        return self._name
+    def full_name(self):
+        return self._full_name
 
     @property
     def version(self):
@@ -126,7 +126,7 @@ class Repository(WorkspaceEntity):
         return None
 
     def configure(self):
-        self.report("Configuring the repository %s" % self.name)
+        self.report("Configuring the repository %s" % self.full_name)
 
         with self.report_sub_level():
             self._load_externals()
