@@ -1,7 +1,10 @@
 __author__ = 'dima'
 
 import os
+import re
 import yaml
+
+_DIGITS_RE = re.compile(r"^\d+$")
 
 
 def read_binary_file(path):
@@ -107,3 +110,25 @@ def replace_between(string, new_value, start_token, end_token):
 
 def xml_escape(string):
     return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def parse_versioned_name(full_name):
+    parts = full_name.split('.')
+
+    name_parts = []
+    version_parts = []
+
+    parts.reverse()
+    for part in parts:
+        if _DIGITS_RE.match(part) and not name_parts:
+            version_parts.append(part)
+        else:
+            name_parts.append(part)
+
+    name_parts.reverse()
+    version_parts.reverse()
+
+    name = ".".join(name_parts)
+    version = ".".join(version_parts)
+
+    return name, version

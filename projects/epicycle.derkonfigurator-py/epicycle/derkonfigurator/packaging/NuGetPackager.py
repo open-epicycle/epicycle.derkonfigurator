@@ -1,6 +1,6 @@
 __author__ = 'Dima Potekhin'
 
-from epicycle.derkonfigurator.utils import nget, xml_escape
+from epicycle.derkonfigurator.utils import nget, xml_escape, parse_versioned_name
 
 
 class NuGetPackager(object):
@@ -79,11 +79,7 @@ class NuGetPackager(object):
     def _generate_nuspec_dependencies(self):
         template = "      <dependency id=\"%s\" version=\"%s\" />"
 
-        return "\r\n".join([template % self._parse_dependency(x) for x in self.dependencies])
-
-    @staticmethod
-    def _parse_dependency(dependency):
-        return tuple(dependency.split('.', 1))
+        return "\r\n".join([template % parse_versioned_name(x) for x in self.dependencies])
 
     def _generate_create_nuget_package_cmd(self, bin_files):
         self.repository.write_template(

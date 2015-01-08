@@ -33,4 +33,5 @@ __ALL__ = [
     'split_into_lines',
     'replace_between',
     'xml_escape',
+    'parse_versioned_name',
 ]

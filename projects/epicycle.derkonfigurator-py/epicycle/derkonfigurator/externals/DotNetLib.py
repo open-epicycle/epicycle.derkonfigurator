@@ -1,14 +1,11 @@
 __author__ = 'Dima Potekhin'
 
 import os
-import re
 from epicycle.derkonfigurator.DirectoryBasedObject import DirectoryBasedObject
-from epicycle.derkonfigurator.utils import listdir_full, join_ipath
+from epicycle.derkonfigurator.utils import listdir_full, join_ipath, parse_versioned_name
 
 
 class DotNetLib(DirectoryBasedObject):
-    DIGITS_RE = re.compile(r"^\d+$")
-
     LIB_DIR = "lib"
 
     def __init__(self, repository, repository_level_subpath, full_name, is_auto):
@@ -18,29 +15,9 @@ class DotNetLib(DirectoryBasedObject):
         self._repository_level_subpath = repository_level_subpath
         self._full_name = full_name
         self._is_auto = is_auto
-
-        self._parse_package_name()
+        self._name, self._version = parse_versioned_name(self._full_name)
 
         self._libs_by_framework = {}
-
-    def _parse_package_name(self):
-        parts = self._full_name.split('.')
-
-        name_parts = []
-        version_parts = []
-
-        parts.reverse()
-        for part in parts:
-            if DotNetLib.DIGITS_RE.match(part) and not name_parts:
-                version_parts.append(part)
-            else:
-                name_parts.append(part)
-
-        name_parts.reverse()
-        version_parts.reverse()
-
-        self._name = ".".join(name_parts)
-        self._version = ".".join(version_parts)
 
     @property
     def repository(self):
