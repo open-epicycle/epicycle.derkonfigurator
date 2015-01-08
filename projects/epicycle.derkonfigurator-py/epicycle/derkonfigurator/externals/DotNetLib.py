@@ -11,12 +11,13 @@ class DotNetLib(DirectoryBasedObject):
 
     LIB_DIR = "lib"
 
-    def __init__(self, repository, repository_level_subpath, full_name):
+    def __init__(self, repository, repository_level_subpath, full_name, is_auto):
         super(DotNetLib, self).__init__(repository.directory.to_full_path(repository_level_subpath))
 
         self._repository = repository
         self._repository_level_subpath = repository_level_subpath
         self._full_name = full_name
+        self._is_auto = is_auto
 
         self._parse_package_name()
 
@@ -52,6 +53,10 @@ class DotNetLib(DirectoryBasedObject):
     @property
     def full_name(self):
         return self._full_name
+
+    @property
+    def is_auto(self):
+        return self._is_auto
 
     @property
     def name(self):

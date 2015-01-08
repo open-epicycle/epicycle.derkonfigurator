@@ -20,6 +20,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._external_libs = nget(self.project.config, "external_libs", [])
 
         self._flattened_external_libs = []
+        self._flattened_resolved_libs = {}
 
     @property
     def project_guid(self):
@@ -54,6 +55,9 @@ class ProjectConfiguratorCs(ProjectConfigurator):
     def get_csproj_file(self, framework):
         return "%s.%s.csproj" % (self.project.full_name, framework)
 
+    def get_flattened_resolved_libs(self, framework):
+        return self._flattened_resolved_libs[framework]
+
     def _flatten_dependencies(self):
         transitive_external_libs = []
         for referenced_project in self.project.referenced_projects:
@@ -65,12 +69,46 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._flattened_external_libs = flattened_external_libs
 
     def _configure(self):
+        self._resolve_external_libs()
         self._find_source_files()
         self._generate_assemblyinfo()
         self._generate_source_infocomments()
 
         for framework in self.project.repository.configurator.supported_frameworks:
             self._generate_vs_project_file(framework)
+
+    def _resolve_external_libs(self):
+        for framework in self.project.repository.configurator.supported_frameworks:
+            self._flattened_resolved_libs[framework] = self._resolve_external_libs_for_framework(framework)
+
+    def _resolve_external_libs_for_framework(self, framework):
+        resolved_libs = []
+        for external_lib_name in self.flattened_external_libs:
+            external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
+
+            if not isinstance(external_lib, DotNetLib):
+                continue
+
+            lib_framework = self._find_best_framework(external_lib.available_frameworks, framework)
+            resolved_libs.append({'lib': external_lib, 'framework': lib_framework, 'is_auto': external_lib.is_auto})
+
+        return resolved_libs
+
+    def _find_best_framework(self, available_frameworks, target_framework):
+        if len(available_frameworks) == 1 and available_frameworks[0] == "":
+            return ""
+
+        all_frameworks = ['net35', 'net40', 'net45']
+
+        potential_frameworks = all_frameworks[:all_frameworks.index(target_framework.lower()) + 1]
+        potential_frameworks.reverse()
+
+        available_frameworks_lower = [x.lower() for x in available_frameworks]
+        for framework in potential_frameworks:
+            if framework.lower() in available_frameworks_lower:
+                return framework
+
+        return None
 
     def _find_source_files(self):
         self._source_files = self.project.directory.find_files_rec(extension=".cs", ignore_dirs=['obj', 'bin'])
@@ -150,36 +188,12 @@ class ProjectConfiguratorCs(ProjectConfigurator):
 
     def _collect_external_dlls(self, framework):
         dll_files = []
-        for external_lib_name in self.flattened_external_libs:
-            external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
-
-            if not isinstance(external_lib, DotNetLib):
-                continue
-
-            lib_framework = self._find_best_framework(external_lib.available_frameworks, framework)
-
-            lib_framework_files = external_lib.get_libs(lib_framework)
-
+        for resolved_libs in self.get_flattened_resolved_libs(framework):
+            lib_framework_files = resolved_libs['lib'].get_libs(resolved_libs['framework'])
             lib_framework_dll_files = [x for x in lib_framework_files if os.path.splitext(x)[1].lower() == ".dll"]
             dll_files += lib_framework_dll_files
 
         return dll_files
-
-    def _find_best_framework(self, available_frameworks, target_framework):
-        if len(available_frameworks) == 1 and available_frameworks[0] == "":
-            return ""
-
-        all_frameworks = ['net35', 'net40', 'net45']
-
-        potential_frameworks = all_frameworks[:all_frameworks.index(target_framework.lower()) + 1]
-        potential_frameworks.reverse()
-
-        available_frameworks_lower = [x.lower() for x in available_frameworks]
-        for framework in potential_frameworks:
-            if framework.lower() in available_frameworks_lower:
-                return framework
-
-        return None
 
     def _generate_csproj_compile_part(self):
         template = "    <Compile Include=\"%s\" />"
