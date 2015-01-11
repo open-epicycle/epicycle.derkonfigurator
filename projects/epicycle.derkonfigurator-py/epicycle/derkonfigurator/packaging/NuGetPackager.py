@@ -1,6 +1,7 @@
 __author__ = 'Dima Potekhin'
 
 from epicycle.derkonfigurator.utils import nget, xml_escape, parse_versioned_name
+from epicycle.derkonfigurator.externals.DotNetLib import DotNetLib
 
 
 class NuGetPackager(object):
@@ -48,15 +49,19 @@ class NuGetPackager(object):
     def _collect_lib_files_for_framework(self, projects, framework):
         lib_files = []
         for project in projects:
-            resolved_libs = [lib for lib in project.configurator.get_flattened_resolved_libs(framework) if not lib['is_auto']]
+            libs = project.configurator.get_flattened_resolved_libs(framework)
+            resolved_libs = [x for x in libs if self._is_non_auto_lib(x)]
 
             for resolved_lib in resolved_libs:
-                lib_files += resolved_lib['lib'].get_libs(resolved_lib['framework'])
+                lib_files += resolved_lib.libs
 
         lib_files = list(set(lib_files))
         lib_files.sort()
 
         return lib_files
+
+    def _is_non_auto_lib(self, lib):
+        return isinstance(lib, DotNetLib) and not lib.is_auto
 
     def _generate_nuspec(self):
         self.repository.write_template(
