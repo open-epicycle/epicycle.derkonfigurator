@@ -82,33 +82,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             self._flattened_resolved_libs[framework] = self._resolve_external_libs_for_framework(framework)
 
     def _resolve_external_libs_for_framework(self, framework):
-        resolved_libs = []
-        for external_lib_name in self.flattened_external_libs:
-            external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
-
-            if not isinstance(external_lib, DotNetLib):
-                continue
-
-            lib_framework = self._find_best_framework(external_lib.available_frameworks, framework)
-            resolved_libs.append({'lib': external_lib, 'framework': lib_framework, 'is_auto': external_lib.is_auto})
-
-        return resolved_libs
-
-    def _find_best_framework(self, available_frameworks, target_framework):
-        if len(available_frameworks) == 1 and available_frameworks[0] == "":
-            return ""
-
-        all_frameworks = ['net35', 'net40', 'net45']
-
-        potential_frameworks = all_frameworks[:all_frameworks.index(target_framework.lower()) + 1]
-        potential_frameworks.reverse()
-
-        available_frameworks_lower = [x.lower() for x in available_frameworks]
-        for framework in potential_frameworks:
-            if framework.lower() in available_frameworks_lower:
-                return framework
-
-        return None
+        return [self.project.repository.externals.get_dotnet_lib(framework, x) for x in self.flattened_external_libs]
 
     def _find_source_files(self):
         self._source_files = self.project.directory.find_files_rec(extension=".cs", ignore_dirs=['obj', 'bin'])
@@ -159,7 +133,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             'net45': ("v4.5", "NET45"),
         }[framework]
 
-        system_libs = self._collect_system_libs()
+        system_libs = self._collect_system_libs(framework)
         external_dlls = self._collect_external_dlls(framework)
 
         self.project.write_template(
@@ -176,20 +150,21 @@ class ProjectConfiguratorCs(ProjectConfigurator):
             project_references=self._generate_csproj_project_references_part(framework),
         )
 
-    def _collect_system_libs(self):
+    def _collect_system_libs(self, framework):
         system_libs = []
-        for external_lib_name in self.flattened_external_libs:
-            external_lib = self.project.repository.externals.get_dotnet_lib(external_lib_name)
-
-            if isinstance(external_lib, DotNetSystemLib):
-                system_libs.append(external_lib)
+        for lib in self.get_flattened_resolved_libs(framework):
+            if isinstance(lib, DotNetSystemLib):
+                system_libs.append(lib)
 
         return system_libs
 
     def _collect_external_dlls(self, framework):
         dll_files = []
-        for resolved_libs in self.get_flattened_resolved_libs(framework):
-            lib_framework_files = resolved_libs['lib'].get_libs(resolved_libs['framework'])
+        for lib in self.get_flattened_resolved_libs(framework):
+            if not isinstance(lib, DotNetLib):
+                continue
+
+            lib_framework_files = lib.libs
             lib_framework_dll_files = [x for x in lib_framework_files if os.path.splitext(x)[1].lower() == ".dll"]
             dll_files += lib_framework_dll_files
 
