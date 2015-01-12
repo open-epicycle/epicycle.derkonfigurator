@@ -32,7 +32,8 @@ class ExternalsManager(DirectoryBasedObject):
         return [x.name for x in self._dotnet_libs]
 
     def get_dotnet_lib(self, framework, lib):
-        return self._dotnet_libs[framework][lib.lower()]
+        key = lib.lower()
+        return self._dotnet_libs[framework][key] if key in self._dotnet_libs[framework] else None
 
     def load(self):
         for framework in self.repository.configurator.supported_frameworks:
@@ -48,9 +49,12 @@ class ExternalsManager(DirectoryBasedObject):
 
     def _add_system_libs(self, framework):
         system_lib_names = [
-            "System.Numerics",
             "System.Drawing",
+            "System.Threading",
         ]
+
+        if framework != 'net35':
+            system_lib_names.append("System.Numerics")
 
         for system_lib_name in system_lib_names:
             self._add_lib(framework, DotNetSystemLib(system_lib_name, framework))
