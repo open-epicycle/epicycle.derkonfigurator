@@ -16,8 +16,17 @@ class ExternalsManager(DirectoryBasedObject):
 
         self._repository = repository
         self._repository_level_subpath = repository_level_subpath
+        self._load_dotnet_lib_config()
 
         self._dotnet_libs = {}
+
+    def _load_dotnet_lib_config(self):
+        config = self.repository.workspace.environment.resources.read_yaml("dotnet_lib_config.yaml")
+
+        self._dotnet_lib_config = {}
+
+        for lib in config['libs']:
+            self._dotnet_lib_config[lib['name']] = lib
 
     @property
     def repository(self):
@@ -73,6 +82,9 @@ class ExternalsManager(DirectoryBasedObject):
         lib_repository_level_subpath = join_ipath(self.repository_level_subpath, externals_level_subpath)
 
         lib = DotNetLib(self.repository, lib_repository_level_subpath, full_name, framework, is_auto)
+        if lib.name in self._dotnet_lib_config and framework not in self._dotnet_lib_config[lib.name]['frameworks']:
+            return
+
         lib.load()
 
         self._add_lib(framework, lib)
