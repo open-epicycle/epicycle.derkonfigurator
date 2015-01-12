@@ -1,0 +1,3 @@
+libs:
+  - name: TaskParallelLibrary
+    frameworks: [net35]
