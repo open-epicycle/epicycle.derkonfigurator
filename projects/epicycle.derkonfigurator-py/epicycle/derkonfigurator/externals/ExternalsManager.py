@@ -64,9 +64,6 @@ class ExternalsManager(DirectoryBasedObject):
         if framework != 'net35':
             system_lib_names.append("System.Numerics")
 
-        if framework != 'net40':
-            system_lib_names.append("System.Threading")
-
         for system_lib_name in system_lib_names:
             self._add_lib(framework, DotNetSystemLib(system_lib_name, framework))
 
