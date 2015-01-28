@@ -96,3 +96,9 @@ class DotNetLib(DirectoryBasedObject):
                 return framework
 
         return ""
+
+    def __str__(self):
+        return self.full_name
+
+    def __repr__(self):
+        return "<DotNetLib:%s>" % self.full_name
