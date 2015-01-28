@@ -11,4 +11,11 @@ copy LICENSE NuGetPackage\%(package_name)s\LICENSE
 
 %(copy_bin_commands)s
 
+cd NuGetPackage
+nuget pack %(package_name)s\%(package_name)s.nuspec -Properties version=%(version)s
+7z a -tzip %(package_name)s.zip %(package_name)s %(package_name)s.nupkg
+
+echo nuget push %(package_name)s.nupkg > push.cmd
+echo pause >> push.cmd
+
 pause

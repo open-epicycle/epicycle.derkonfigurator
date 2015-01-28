@@ -91,6 +91,7 @@ class NuGetPackager(object):
             "create_nuget_package.cmd", "templates/packaging/nuget/create_nuget_package.TEMPLATE.cmd",
             package_name=self.package_name,
             copy_bin_commands=self._generate_copy_commands(bin_files),
+            version=self.repository.version
         )
 
     def _generate_copy_commands(self, bin_files):
