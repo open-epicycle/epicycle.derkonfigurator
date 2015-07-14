@@ -36,6 +36,7 @@ def resolve_templates(data, template_provider):
 def process_template(template_data, params):
     data = template_data
     data = _exec_template_code(data, params)
+    data = _process_template_multiplication(data, params)
     data = _process_template_conditionals(data, params)
     data = _eval_template_code(data, params)
     data = _inline_template_params(data, params)
@@ -65,17 +66,34 @@ def _eval_template_code(template_data, params):
         sub_parts = part.split("#=]", 1)
 
         if len(sub_parts) > 1:
-            code_sub_part = sub_parts[0]
+            exec_eval_str = sub_parts[0]
+
+            to_exec, to_eval = parse_exec_and_eval(exec_eval_str)
 
             _ = params
-            output = str(eval(code_sub_part))
-            output_parts.append(output)
+            if to_exec:
+                exec to_exec
 
-        x = 10
+            if to_eval:
+                result = str(eval(to_eval))
+                output_parts.append(result)
 
         output_parts.append(sub_parts[-1])
 
     return "".join(output_parts)
+
+
+def parse_exec_and_eval(exec_eval_str):
+    exec_eval_parts = [x.strip() for x in exec_eval_str.split("|||", 1)]
+
+    if len(exec_eval_parts) == 2:
+        to_exec = exec_eval_parts[0]
+        to_eval = exec_eval_parts[1]
+    else:
+        to_exec = ""
+        to_eval = exec_eval_parts[0]
+
+    return to_exec, to_eval
 
 
 def _process_template_conditionals(template_data, params):
@@ -91,13 +109,63 @@ def _process_template_conditionals(template_data, params):
             conditional_str = condition_parts[0]
             conditional_output = condition_parts[1]
 
+            to_exec, to_eval = parse_exec_and_eval(conditional_str)
+
             _ = params
-            if eval(conditional_str):
+            if to_exec:
+                exec to_exec
+
+            if to_eval and eval(to_eval):
                 output_parts.append(conditional_output)
 
         output_parts.append(sub_parts[-1])
 
     return "".join(output_parts)
+
+
+def _process_template_multiplication(template_data, params):
+    output_parts = []
+    for part in template_data.split("[*#"):
+        sub_parts = part.split("#*]", 1)
+
+        if len(sub_parts) > 1:
+            conditional_sub_part = sub_parts[0]
+
+            condition_parts = conditional_sub_part.split("::", 1)
+
+            exp_str = condition_parts[0]
+            output = condition_parts[1]
+
+            _ = params
+            iterable = eval(exp_str)
+
+            for x in iterable:
+                itemSetCode = "_item_ = %s" % repr(x)
+
+                prefix = "[=# %s ||| #=]" % itemSetCode
+                output_parts.append(prefix)
+                output_parts.append(inject_into_conditionals(output, itemSetCode))
+
+        output_parts.append(sub_parts[-1])
+
+    return "".join(output_parts)
+
+
+def inject_into_conditionals(data, code):
+    toInject = " %s |||" % code
+
+    return data.replace("[?#", "[?# " + toInject)
+
+
+def _check_conditional(conditional_str, params, is_inverse):
+    parts = conditional_str.split("=", 1)
+
+    param_name = parts[0].strip()
+    expected_value = parts[1].strip()
+
+    result = str(params[param_name]) == expected_value
+
+    return result if not is_inverse else not result
 
 
 def _inline_template_params(template_data, params):
@@ -155,3 +223,9 @@ class Params(object):
 
     def __setattr__(self, key, value):
         self[key] = value
+
+    def __str__(self):
+        return str(self._data)
+
+    def __unicode__(self):
+        return unicode(self._data)
