@@ -36,9 +36,9 @@ def resolve_templates(data, template_provider):
 def process_template(template_data, params):
     data = template_data
     data = _exec_template_code(data, params)
+    data = _process_template_conditionals(data, params)
     data = _eval_template_code(data, params)
     data = _inline_template_params(data, params)
-    data = _process_template_conditionals(data, params)
 
     return data
 
@@ -87,7 +87,7 @@ def _process_template_conditionals(template_data, params):
             conditional_sub_part = sub_parts[0]
 
             condition_parts = conditional_sub_part.split(":?", 1)
-            
+
             conditional_str = condition_parts[0]
             conditional_output = condition_parts[1]
 
