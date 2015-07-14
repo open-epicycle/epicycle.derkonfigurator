@@ -100,43 +100,6 @@ def _process_template_conditionals(template_data, params):
     return "".join(output_parts)
 
 
-def _process_template_conditionals2(template_data, params):
-    output_parts = []
-    for part in template_data.split("[?#"):
-        sub_parts = part.split("#?]", 1)
-
-        if len(sub_parts) > 1:
-            conditional_sub_part = sub_parts[0]
-
-            is_inverse = False
-            if conditional_sub_part.startswith("!"):
-                conditional_sub_part = conditional_sub_part[1:]
-                is_inverse = True
-
-            condition_parts = conditional_sub_part.split(":", 1)
-
-            conditional_str = condition_parts[0]
-            conditional_output = condition_parts[1]
-
-            if _check_conditional(conditional_str, params, is_inverse):
-                output_parts.append(conditional_output)
-
-        output_parts.append(sub_parts[-1])
-
-    return "".join(output_parts)
-
-
-def _check_conditional(conditional_str, params, is_inverse):
-    parts = conditional_str.split("=", 1)
-
-    param_name = parts[0].strip()
-    expected_value = parts[1].strip()
-
-    result = str(params[param_name]) == expected_value
-
-    return result if not is_inverse else not result
-
-
 def _inline_template_params(template_data, params):
     output_parts = []
     for part in template_data.split("[#"):
