@@ -134,17 +134,26 @@ def _process_template_multiplication(template_data, params):
             condition_parts = conditional_sub_part.split("::", 1)
 
             exp_str = condition_parts[0]
-            output = condition_parts[1]
+            output_and_delimiter_parts = condition_parts[1].split(":|:")
+
+            if len(output_and_delimiter_parts) == 2:
+                output = output_and_delimiter_parts[0]
+                delimiter = output_and_delimiter_parts[1]
+            else:
+                output = output_and_delimiter_parts[0]
+                delimiter = ""
 
             _ = params
             iterable = eval(exp_str)
 
+            multi_parts = []
             for x in iterable:
-                itemSetCode = "_item_ = %s" % repr(x)
+                item_set_code = "_item_ = %s" % repr(x)
 
-                prefix = "[=# %s ||| #=]" % itemSetCode
-                output_parts.append(prefix)
-                output_parts.append(inject_into_conditionals(output, itemSetCode))
+                data = inject_into_conditionals(output, item_set_code)
+                multi_parts.append("[=# %s ||| #=]%s" % (item_set_code, data))
+
+            output_parts.append(delimiter.join(multi_parts))
 
         output_parts.append(sub_parts[-1])
 
@@ -152,9 +161,9 @@ def _process_template_multiplication(template_data, params):
 
 
 def inject_into_conditionals(data, code):
-    toInject = " %s |||" % code
+    to_inject = " %s |||" % code
 
-    return data.replace("[?#", "[?# " + toInject)
+    return data.replace("[?#", "[?# " + to_inject)
 
 
 def _check_conditional(conditional_str, params, is_inverse):
@@ -174,7 +183,7 @@ def _inline_template_params(template_data, params):
         sub_parts = part.split("#]", 1)
 
         if len(sub_parts) > 1:
-            output_parts.append(params[sub_parts[0].strip()])
+            output_parts.append(str(params[sub_parts[0].strip()]))
 
         output_parts.append(sub_parts[-1])
 
