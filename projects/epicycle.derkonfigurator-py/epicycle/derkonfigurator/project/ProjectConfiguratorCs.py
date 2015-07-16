@@ -4,7 +4,8 @@ import os
 from ProjectConfigurator import ProjectConfigurator
 from epicycle.derkonfigurator.externals.DotNetLib import DotNetLib
 from epicycle.derkonfigurator.externals.DotNetSystemLib import DotNetSystemLib
-from epicycle.derkonfigurator.utils import nget, split_into_lines, join_ipath
+from epicycle.derkonfigurator.utils import nget, split_into_lines, join_ipath, ipath_replace_last_part
+from epicycle.derkonfigurator.temploid import resolve_templates, process_template
 
 
 class ProjectConfiguratorCs(ProjectConfigurator):
@@ -73,6 +74,7 @@ class ProjectConfiguratorCs(ProjectConfigurator):
         self._find_source_files()
         self._generate_assemblyinfo()
         self._generate_source_infocomments()
+        self._resolve_templates()
 
         for framework in self.project.repository.configurator.supported_frameworks:
             self._generate_vs_project_file(framework)
@@ -123,6 +125,26 @@ class ProjectConfiguratorCs(ProjectConfigurator):
 
         lines = split_into_lines(raw_comment)
         return "\r\n%s\r\n// " % "\r\n".join(["// " + x for x in lines])
+
+    def _resolve_templates(self):
+        for source_file in self._source_files:
+            new_data = resolve_templates(
+                self.project.directory.read_unicode_file(source_file),
+                lambda name, params: self._provide_template(source_file, name, params))
+
+            if new_data is not None:
+                self.project.directory.write_unicode_file(source_file, new_data)
+
+    def _provide_template(self, source_file_path, template_name, template_params):
+        if template_name.endswith(".TEMPLATE"):
+            template_file_path = ipath_replace_last_part(source_file_path, template_name)
+            template_data = self.project.directory.read_unicode_file(template_file_path)
+
+            resolved_template_data = process_template(template_data, template_params)
+
+            return resolved_template_data
+        else:
+            return "<UNKNOWN TEMPLATE>"
 
     def _generate_vs_project_file(self, framework):
         self.project.report("Generating VS proj file")

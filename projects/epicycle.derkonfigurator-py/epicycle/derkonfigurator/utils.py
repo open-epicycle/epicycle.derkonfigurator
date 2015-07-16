@@ -51,6 +51,10 @@ def join_ipath(*parts):
     return os.path.join(*parts).replace('\\', '/')
 
 
+def ipath_replace_last_part(path, new_part):
+    return join_ipath(os.path.split(path)[0], new_part)
+
+
 def compare_paths(path1, path2):
     return _normalize_path_for_comparison(path1) == _normalize_path_for_comparison(path2)
 
@@ -106,6 +110,10 @@ def replace_between(string, new_value, start_token, end_token):
     suffix = parts2[1]
 
     return prefix + start_token + new_value + end_token + suffix
+
+
+def prefix_lines(data, prefix):
+    return "\n".join([prefix + x if x.strip() else x for x in data.split("\n")])
 
 
 def xml_escape(string):
