@@ -124,9 +124,24 @@ def _process_template_conditionals(template_data, params):
 
 
 def _process_template_multiplication(template_data, params):
+    data = template_data
+    for i in range(5):
+        data = _process_template_multiplication_level(i, data, params)
+
+    return data
+
+
+def _process_template_multiplication_level(level, template_data, params):
     output_parts = []
-    for part in template_data.split("[*#"):
-        sub_parts = part.split("#*]", 1)
+
+    level_str = str(level) if level > 0 else ""
+    start_tag = "[*%s#" % level_str
+    end_tag = "#*%s]" % level_str
+    delimiter_tag = "|*%s|" % level_str
+    item_var_name = "_item%s_" % level_str
+
+    for part in template_data.split(start_tag):
+        sub_parts = part.split(end_tag, 1)
 
         if len(sub_parts) > 1:
             conditional_sub_part = sub_parts[0]
@@ -134,7 +149,7 @@ def _process_template_multiplication(template_data, params):
             condition_parts = conditional_sub_part.split("::", 1)
 
             exp_str = condition_parts[0]
-            output_and_delimiter_parts = condition_parts[1].split(":|:")
+            output_and_delimiter_parts = condition_parts[1].split(delimiter_tag)
 
             if len(output_and_delimiter_parts) == 2:
                 output = output_and_delimiter_parts[0]
@@ -148,7 +163,7 @@ def _process_template_multiplication(template_data, params):
 
             multi_parts = []
             for x in iterable:
-                item_set_code = "_item_ = %s" % repr(x)
+                item_set_code = "%s = %s" % (item_var_name, repr(x))
 
                 data = inject_into_conditionals(output, item_set_code)
                 multi_parts.append("[=# %s ||| #=]%s" % (item_set_code, data))
